@@ -1,0 +1,10 @@
+updated_at: '2026-04-02T23:11:00+08:00'
+holdings:
+- code: 002594.SZ
+  name: 比亚迪
+  cost: 101.701
+  quantity: 1
+- code: 600674.SH
+  name: 川投能源
+  cost: 15.186
+  quantity: 9
