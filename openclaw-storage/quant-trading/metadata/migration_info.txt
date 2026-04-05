@@ -1,0 +1,5 @@
+migration_time=2026-04-05 19:51:30 +0800
+source_root=/Users/alimars/.openclaw/workspace/quant-trading
+target_base=/Volumes/Alimars扩容空间/AiLab/openclaw-storage/quant-trading
+old_data=/Users/alimars/.openclaw/workspace/quant-trading/data.pre-migration-20260405_195130
+old_backups=/Users/alimars/.openclaw/workspace/quant-trading/backups.pre-migration-20260405_195130

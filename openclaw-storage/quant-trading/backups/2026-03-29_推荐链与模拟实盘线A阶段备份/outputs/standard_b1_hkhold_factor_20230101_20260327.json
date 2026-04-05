@@ -1,0 +1,16 @@
+{
+  "status": "ok",
+  "start": "2023-01-01",
+  "end": "2026-03-27",
+  "event_count": 1078,
+  "signal_days": 121,
+  "avg_symbols_per_signal_day": 8.909090909090908,
+  "avg_gap_days": 1.9083333333333334,
+  "median_gap_days": 1.0,
+  "returns": {
+    "sample_count": 1078,
+    "avg_return": -0.12264809145801807,
+    "median_return": -0.11767176523801452,
+    "win_rate": 0.45918367346938777
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "task": "segmented_daily_backfill",
+  "status": "completed",
+  "updated_at": "2026-04-01 10:23:04",
+  "total_target_codes": 5192,
+  "completed_codes": 5192,
+  "failed_codes": 0,
+  "repaired_codes": 2077,
+  "still_missing_codes": 3115,
+  "progress_pct": 100.0,
+  "segments": [
+    [
+      "20000101",
+      "20041231"
+    ],
+    [
+      "20050101",
+      "20091231"
+    ],
+    [
+      "20100101",
+      "20141231"
+    ],
+    [
+      "20150101",
+      "20191231"
+    ],
+    [
+      "20200101",
+      "20221231"
+    ],
+    [
+      "20230101",
+      "20260330"
+    ]
+  ]
+}

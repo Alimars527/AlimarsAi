@@ -1,0 +1,54 @@
+{
+  "summary": {
+    "b2_hit": {
+      "count": 97,
+      "mean_return": 0.13567898376799647,
+      "median_return": 1.1410788381742698,
+      "win_rate": 0.5773195876288659,
+      "p25": -4.245553643143996,
+      "p75": 5.0,
+      "top5_mean": 11.751716043558226,
+      "bottom5_mean": -13.150583976088125
+    },
+    "b2_attack": {
+      "count": 10,
+      "mean_return": 5.257273258939668,
+      "median_return": 6.597906267661336,
+      "win_rate": 0.8,
+      "p25": 2.51917437219914,
+      "p75": 9.844528493894932,
+      "top5_mean": 10.22187149323826,
+      "bottom5_mean": 0.29267502464107586
+    }
+  },
+  "combo": [
+    {
+      "combo": "B2_only",
+      "count": 5,
+      "mean_return": 4.1743157436835965,
+      "median_return": 8.90761360216672,
+      "win_rate": 0.6
+    },
+    {
+      "combo": "B2_B1",
+      "count": 6,
+      "mean_return": 7.920656446850878,
+      "median_return": 6.597906267661336,
+      "win_rate": 1.0
+    },
+    {
+      "combo": "B2_brick",
+      "count": 33,
+      "mean_return": -0.2750411132881337,
+      "median_return": 0.2645502645502784,
+      "win_rate": 0.5151515151515151
+    },
+    {
+      "combo": "B2_B1_brick",
+      "count": 53,
+      "mean_return": -0.8709113063305507,
+      "median_return": 1.1410788381742698,
+      "win_rate": 0.5660377358490566
+    }
+  ]
+}

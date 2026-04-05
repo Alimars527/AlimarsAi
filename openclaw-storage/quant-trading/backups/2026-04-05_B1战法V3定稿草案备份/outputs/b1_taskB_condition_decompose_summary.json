@@ -1,0 +1,145 @@
+{
+  "task": "Task B - B1条件拆解",
+  "date_range": [
+    "20230101",
+    "20260403"
+  ],
+  "variants": {
+    "B1_V2_BASE": {
+      "event_count": 10540,
+      "win_rate": 51.31,
+      "avg_return": 0.3213,
+      "median_return": 0.1101,
+      "trimmed_mean_10": 0.1254,
+      "trimmed_mean_20": 0.0945,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.4926,
+      "signal_days": 564,
+      "variant_desc": "B1_V2基线"
+    },
+    "DROP_PULLBACK_PCT": {
+      "event_count": 12266,
+      "win_rate": 51.39,
+      "avg_return": 0.383,
+      "median_return": 0.1282,
+      "trimmed_mean_10": 0.1598,
+      "trimmed_mean_20": 0.12,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.8405,
+      "signal_days": 585,
+      "variant_desc": "去掉 回调幅度<=15%"
+    },
+    "DROP_PULLBACK_DAYS": {
+      "event_count": 10897,
+      "win_rate": 51.07,
+      "avg_return": 0.3038,
+      "median_return": 0.0925,
+      "trimmed_mean_10": 0.1119,
+      "trimmed_mean_20": 0.0788,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.4947,
+      "signal_days": 566,
+      "variant_desc": "去掉 回调时间<=15天"
+    },
+    "DROP_VOLUME_SHRINK_B": {
+      "event_count": 12596,
+      "win_rate": 51.04,
+      "avg_return": 0.3178,
+      "median_return": 0.0914,
+      "trimmed_mean_10": 0.1207,
+      "trimmed_mean_20": 0.0891,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.5096,
+      "signal_days": 579,
+      "variant_desc": "去掉 量能收束B"
+    },
+    "DROP_MV_100": {
+      "event_count": 30927,
+      "win_rate": 51.59,
+      "avg_return": 0.3342,
+      "median_return": 0.1364,
+      "trimmed_mean_10": 0.1678,
+      "trimmed_mean_20": 0.1404,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.7821,
+      "signal_days": 665,
+      "variant_desc": "去掉 市值>100亿"
+    },
+    "DROP_WHITE_OVER_YELLOW": {
+      "event_count": 12295,
+      "win_rate": 51.35,
+      "avg_return": 0.3416,
+      "median_return": 0.109,
+      "trimmed_mean_10": 0.1491,
+      "trimmed_mean_20": 0.1106,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.1796,
+      "signal_days": 585,
+      "variant_desc": "去掉 white>yellow"
+    },
+    "DROP_NOT_FULL_UNDER_WHITE": {
+      "event_count": 23620,
+      "win_rate": 50.58,
+      "avg_return": 0.1497,
+      "median_return": 0.047,
+      "trimmed_mean_10": 0.0366,
+      "trimmed_mean_20": 0.0257,
+      "max_loss": -39.2026,
+      "worst_5pct_mean": -9.1793,
+      "signal_days": 690,
+      "variant_desc": "去掉 K线不完全在白线下"
+    },
+    "BASE_ONLY": {
+      "event_count": 15061,
+      "win_rate": 51.01,
+      "avg_return": 0.3671,
+      "median_return": 0.0934,
+      "trimmed_mean_10": 0.1427,
+      "trimmed_mean_20": 0.1008,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.9258,
+      "signal_days": 604,
+      "variant_desc": "只保留基础硬条件"
+    },
+    "BASE_PLUS_PULLBACK_PCT": {
+      "event_count": 13034,
+      "win_rate": 50.89,
+      "avg_return": 0.3089,
+      "median_return": 0.0821,
+      "trimmed_mean_10": 0.1119,
+      "trimmed_mean_20": 0.0779,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.5056,
+      "signal_days": 580,
+      "variant_desc": "基础硬条件 + 幅度"
+    },
+    "BASE_PLUS_PULLBACK_DAYS": {
+      "event_count": 14542,
+      "win_rate": 51.12,
+      "avg_return": 0.3713,
+      "median_return": 0.1038,
+      "trimmed_mean_10": 0.1488,
+      "trimmed_mean_20": 0.1094,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.9315,
+      "signal_days": 603,
+      "variant_desc": "基础硬条件 + 时间"
+    },
+    "BASE_PLUS_VOLUME_SHRINK_B": {
+      "event_count": 12698,
+      "win_rate": 51.19,
+      "avg_return": 0.3704,
+      "median_return": 0.1101,
+      "trimmed_mean_10": 0.1484,
+      "trimmed_mean_20": 0.1064,
+      "max_loss": -36.2589,
+      "worst_5pct_mean": -9.8538,
+      "signal_days": 587,
+      "variant_desc": "基础硬条件 + 量能"
+    }
+  },
+  "compare_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/b1_taskB_condition_decompose_compare.csv",
+  "yearly_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/b1_taskB_condition_decompose_yearly.csv",
+  "tail_risk_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/b1_taskB_condition_decompose_tail_risk.csv",
+  "events_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/b1_taskB_condition_decompose_events.csv"
+}

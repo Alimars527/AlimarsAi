@@ -1,0 +1,37 @@
+{
+  "strategy": "b1_rebuild_v1_constrained_bc_compare",
+  "date_range": [
+    "20230101",
+    "20260401"
+  ],
+  "overall": {
+    "event_count": 23706,
+    "signal_days": 638,
+    "win_rate": 36.62,
+    "avg_return_pct": 0.5517,
+    "median_return_pct": -0.8305
+  },
+  "B_only": {
+    "event_count": 525,
+    "signal_days": 233,
+    "win_rate": 39.81,
+    "avg_return_pct": 0.5579,
+    "median_return_pct": -0.5618
+  },
+  "C_only": {
+    "event_count": 2196,
+    "signal_days": 407,
+    "win_rate": 37.52,
+    "avg_return_pct": 0.5896,
+    "median_return_pct": -0.6686
+  },
+  "B_and_C": {
+    "event_count": 20985,
+    "signal_days": 625,
+    "win_rate": 36.45,
+    "avg_return_pct": 0.5476,
+    "median_return_pct": -0.8649
+  },
+  "events_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/b1_rebuild_v1_constrained_bc_compare_events.csv",
+  "note": "仅保留回调<=15%、时间<=15天；量能收束用方式B/C比较；OMAV作为权重层"
+}

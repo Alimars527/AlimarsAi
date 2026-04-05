@@ -1,0 +1,97 @@
+{
+  "status": "ok",
+  "summary": [
+    {
+      "top_n": 3,
+      "with_mf_avg_return_1d": -1.6221,
+      "without_mf_avg_return_1d": -1.6221
+    },
+    {
+      "top_n": 5,
+      "with_mf_avg_return_1d": -1.5206,
+      "without_mf_avg_return_1d": -1.5206
+    }
+  ],
+  "rows": [
+    {
+      "trade_date": "20260320",
+      "top_n": 3,
+      "with_mf_avg_return_1d": null,
+      "without_mf_avg_return_1d": null,
+      "with_count": 0,
+      "without_count": 0
+    },
+    {
+      "trade_date": "20260320",
+      "top_n": 5,
+      "with_mf_avg_return_1d": null,
+      "without_mf_avg_return_1d": null,
+      "with_count": 0,
+      "without_count": 0
+    },
+    {
+      "trade_date": "20260319",
+      "top_n": 3,
+      "with_mf_avg_return_1d": -2.773,
+      "without_mf_avg_return_1d": -2.773,
+      "with_count": 3,
+      "without_count": 3
+    },
+    {
+      "trade_date": "20260319",
+      "top_n": 5,
+      "with_mf_avg_return_1d": -1.1344,
+      "without_mf_avg_return_1d": -1.1344,
+      "with_count": 5,
+      "without_count": 5
+    },
+    {
+      "trade_date": "20260318",
+      "top_n": 3,
+      "with_mf_avg_return_1d": -2.0679,
+      "without_mf_avg_return_1d": -2.0679,
+      "with_count": 3,
+      "without_count": 3
+    },
+    {
+      "trade_date": "20260318",
+      "top_n": 5,
+      "with_mf_avg_return_1d": -2.4816,
+      "without_mf_avg_return_1d": -2.4816,
+      "with_count": 5,
+      "without_count": 5
+    },
+    {
+      "trade_date": "20260317",
+      "top_n": 3,
+      "with_mf_avg_return_1d": 0.1675,
+      "without_mf_avg_return_1d": 0.1675,
+      "with_count": 3,
+      "without_count": 3
+    },
+    {
+      "trade_date": "20260317",
+      "top_n": 5,
+      "with_mf_avg_return_1d": -1.0882,
+      "without_mf_avg_return_1d": -1.0882,
+      "with_count": 5,
+      "without_count": 5
+    },
+    {
+      "trade_date": "20260316",
+      "top_n": 3,
+      "with_mf_avg_return_1d": -1.815,
+      "without_mf_avg_return_1d": -1.815,
+      "with_count": 3,
+      "without_count": 3
+    },
+    {
+      "trade_date": "20260316",
+      "top_n": 5,
+      "with_mf_avg_return_1d": -1.378,
+      "without_mf_avg_return_1d": -1.378,
+      "with_count": 5,
+      "without_count": 5
+    }
+  ]
+}

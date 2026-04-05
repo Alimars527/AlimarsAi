@@ -1,0 +1,2 @@
+trade_date,status,action,core_recommendation,position_state,note
+2026-03-30,done,no_trade,empty,cash_only,模拟实盘启动；核心推荐为空；今日无交易，空仓观望

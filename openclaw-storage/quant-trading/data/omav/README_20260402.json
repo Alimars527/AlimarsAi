@@ -1,0 +1,21 @@
+{
+  "raw_source": "/Users/alimars/.openclaw/workspace/quant-trading/data/omav/omav_raw_month_rows_20260402.json",
+  "daily_file": "/Users/alimars/.openclaw/workspace/quant-trading/data/omav/omav_daily_standardized_20260402.csv",
+  "alignment_file": "/Users/alimars/.openclaw/workspace/quant-trading/data/omav/omav_month_alignment_check_20260402.csv",
+  "rows_written": 779,
+  "months_total": 40,
+  "months_matching_local_calendar": 36,
+  "months_mismatch_local_calendar": 4,
+  "manual_updates": [
+    {
+      "date": "2026-04-03",
+      "scope": "202603 full month OMAV rows + 20260402/20260403 OMAV values",
+      "source": "user manual input"
+    },
+    {
+      "date": "2026-04-03",
+      "scope": "20260401 manual OMAV added",
+      "source": "user manual input"
+    }
+  ]
+}

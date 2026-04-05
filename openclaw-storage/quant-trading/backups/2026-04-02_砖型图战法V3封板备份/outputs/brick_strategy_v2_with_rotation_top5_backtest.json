@@ -1,0 +1,17 @@
+{
+  "strategy": "brick_strategy_v2_with_rotation_top5",
+  "date_range": [
+    "20230101",
+    "20260401"
+  ],
+  "summary": {
+    "event_count": 3563,
+    "signal_days": 455,
+    "win_rate": 44.06,
+    "avg_return_pct": 0.5462,
+    "median_return_pct": -0.4464
+  },
+  "events_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/brick_strategy_v2_with_rotation_top5_backtest_events.csv",
+  "rotation_rule": "rank<=5 only",
+  "base_version": "V2=优质砖型图V1+OMAV硬过滤"
+}

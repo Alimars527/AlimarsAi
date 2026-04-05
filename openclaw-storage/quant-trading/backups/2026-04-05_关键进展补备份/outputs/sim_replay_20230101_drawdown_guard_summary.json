@@ -1,0 +1,11 @@
+{
+  "start_date": "20230101",
+  "end_date": "20260403",
+  "initial_capital": 100000.0,
+  "final_equity": 103211.75,
+  "total_return_pct": 3.21,
+  "trade_count": 265,
+  "win_rate_pct": 48.68,
+  "nav_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/sim_replay_20230101_drawdown_guard_nav.csv",
+  "trades_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/sim_replay_20230101_drawdown_guard_trades.csv"
+}

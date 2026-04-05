@@ -1,0 +1,8 @@
+trade_date,market_regime,candidate_code,candidate_name,industry,strategy_tag,trend_tier,secondary_confirm_tier,priority_score,entry_low,entry_high,do_not_chase_above,executed,execution_price,execution_reason,skip_reason,next_day_result,exit_result,matched_system_expectation,deviation_reason,notes
+,weak,000049.SZ,德赛电池,电气设备,,,,,,,,,,,,,,,
+,weak,000045.SZ,深纺织Ａ,元器件,,,,,,,,,,,,,,,
+,weak,000423.SZ,东阿阿胶,中成药,,,,,,,,,,,,,,,
+,weak,001872.SZ,招商港口,港口,,,,,,,,,,,,,,,
+,weak,000539.SZ,粤电力Ａ,火力发电,,,,,,,,,,,,,,,
+,weak,000722.SZ,湖南发展,水力发电,,,,,,,,,,,,,,,
+,weak,000429.SZ,粤高速Ａ,路桥,,,,,,,,,,,,,,,

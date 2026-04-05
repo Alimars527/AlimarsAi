@@ -1,0 +1,37 @@
+{
+  "status": "ok",
+  "universe_count": 3567,
+  "result_count": 3567,
+  "by_tactic": [
+    {
+      "tactic_bucket": "defensive_rotation_ambush",
+      "tactic_family": "observe",
+      "tactic_signal": "防守轮动埋伏观察",
+      "sample_count": 3488,
+      "avg_return": -1.8242962500000002,
+      "avg_win_rate": 0.573075,
+      "avg_exit_return": 0.032242975206611575,
+      "avg_exit_win_rate": 0.5286884297520661
+    },
+    {
+      "tactic_bucket": "mainline_week_b1_observe",
+      "tactic_family": "mainline",
+      "tactic_signal": "周B1/主线观察",
+      "sample_count": 39,
+      "avg_return": -3.8448766666666665,
+      "avg_win_rate": 0.40166666666666667,
+      "avg_exit_return": -0.689753125,
+      "avg_exit_win_rate": 0.346353125
+    },
+    {
+      "tactic_bucket": "mainline_repair_watch",
+      "tactic_family": "mainline",
+      "tactic_signal": "主线修复观察",
+      "sample_count": 40,
+      "avg_return": -6.528483333333333,
+      "avg_win_rate": 0.37555666666666665,
+      "avg_exit_return": 0.010340540540540519,
+      "avg_exit_win_rate": 0.5675648648648649
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "strategy": "brick_strategy_v1_with_omav_hardfilter_mv50",
+  "date_range": [
+    "20230101",
+    "20260401"
+  ],
+  "summary": {
+    "event_count": 29907,
+    "signal_days": 598,
+    "win_rate": 41.38,
+    "avg_return_pct": 0.2825,
+    "median_return_pct": -0.5376
+  },
+  "events_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/brick_strategy_v1_with_omav_hardfilter_mv50_backtest_events.csv",
+  "mv_threshold_billion": 50.0
+}

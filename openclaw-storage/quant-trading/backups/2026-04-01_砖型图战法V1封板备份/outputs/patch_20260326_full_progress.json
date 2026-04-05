@@ -1,0 +1,18 @@
+{
+  "status": "done",
+  "trade_date": "20260326",
+  "processed": 3664,
+  "total": 3664,
+  "ok": 3664,
+  "fail": 0,
+  "batch_size": 200,
+  "last_code": "688781.SH",
+  "datasets": [
+    "daily",
+    "daily_basic",
+    "adj_factor",
+    "moneyflow"
+  ],
+  "started_at": "2026-03-26 16:24:24",
+  "finished_at": "2026-03-26 18:16:42"
+}

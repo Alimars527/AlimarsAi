@@ -1,0 +1,18 @@
+{
+  "status": "done",
+  "trade_date": "20260401",
+  "processed": 3663,
+  "total": 3663,
+  "ok": 3663,
+  "fail": 0,
+  "batch_size": 200,
+  "last_code": "001257.SZ",
+  "datasets": [
+    "daily",
+    "daily_basic",
+    "adj_factor",
+    "moneyflow"
+  ],
+  "started_at": "2026-04-02 00:30:59",
+  "finished_at": "2026-04-02 01:20:45"
+}

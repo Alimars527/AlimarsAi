@@ -1,0 +1,25 @@
+{
+  "status": "ok",
+  "universe_count": 3567,
+  "result_count": 3567,
+  "by_tactic": [
+    {
+      "tactic_family": "observe",
+      "tactic_signal": "防守轮动埋伏观察",
+      "sample_count": 3488,
+      "avg_return": -1.8242962500000002,
+      "avg_win_rate": 0.573075,
+      "avg_exit_return": 0.032242975206611575,
+      "avg_exit_win_rate": 0.5286884297520661
+    },
+    {
+      "tactic_family": "mainline",
+      "tactic_signal": "周B1/主线观察",
+      "sample_count": 79,
+      "avg_return": -5.18668,
+      "avg_win_rate": 0.3886116666666667,
+      "avg_exit_return": -0.31434057971014495,
+      "avg_exit_win_rate": 0.46497391304347824
+    }
+  ]
+}

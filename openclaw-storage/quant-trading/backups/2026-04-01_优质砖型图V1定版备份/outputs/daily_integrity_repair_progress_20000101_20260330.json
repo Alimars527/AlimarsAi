@@ -1,0 +1,17 @@
+{
+  "task": "fullmarket_daily_integrity_repair",
+  "start_date": "20000101",
+  "end_date": "20260330",
+  "total_codes": 5193,
+  "processed_codes": 5193,
+  "completed_codes": 5193,
+  "repaired_codes": 5192,
+  "failed_codes": 0,
+  "progress_pct": 100.0,
+  "current_code": "688781.SH",
+  "current_name": "视涯科技-UW",
+  "current_industry": "元器件",
+  "missing_before": 0,
+  "missing_after": 0,
+  "updated_at": "2026-03-31 11:13:35"
+}

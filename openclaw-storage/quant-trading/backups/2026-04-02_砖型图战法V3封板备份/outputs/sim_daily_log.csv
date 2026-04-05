@@ -1,0 +1,4 @@
+trade_date,status,action,core_recommendation,position_state,note
+2026-03-30,done,no_trade,empty,cash_only,模拟实盘启动；核心推荐为空；今日无交易，空仓观望
+2026-03-31,done,no_trade,empty,cash_only,模拟实盘独立于用户真实持仓；按线A策略决策。今日核心推荐为空；继续空仓观望
+2026-04-01,done,no_trade,empty,cash_only,2026-04-01 日终管线已跑；核心推荐为空；模拟实盘继续空仓观望

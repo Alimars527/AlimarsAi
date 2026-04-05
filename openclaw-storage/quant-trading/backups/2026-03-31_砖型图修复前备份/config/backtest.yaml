@@ -1,0 +1,39 @@
+backtest:
+  enabled: true
+  start_date: '20230101'
+  end_date: '20260320'
+  holding_periods:
+    - 1
+    - 3
+    - 5
+  benchmark_index: '000001.SH'
+  use_adjust_factor: true
+  data_mode: 'local_first'
+  local_data_dir: 'data'
+
+filters:
+  exclude_st: true
+  exclude_delisted: true
+  exclude_current_holdings: true
+  exclude_markets:
+    - 北交所
+    - 创业板
+  hard_exclude_industries:
+    - 区域地产
+    - 全国地产
+    - 房产服务
+    - 园区开发
+    - 其他商业
+
+execution:
+  commission_rate: 0.000086
+  min_commission: 5
+  stamp_tax_sell: 0.0005
+  lot_size: 100
+  account_label: 'default_a_share'
+
+strategies:
+  enabled:
+    - 主线趋势
+    - 轮动补涨
+    - 埋伏观察

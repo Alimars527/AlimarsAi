@@ -1,0 +1,32 @@
+{
+  "status": "ok",
+  "whitelist": {
+    "sample_count": 87,
+    "avg_return": 0.7666630324314092,
+    "median_return": 0.3391040514010311,
+    "win_rate": 0.5977011494252874,
+    "signal_days": 62
+  },
+  "note": "rotation_support is a proxy built from industry-day recent avg_return/count on the B1 resonance V1 sample pool",
+  "full": {
+    "sample_count": 501,
+    "avg_return": 0.27182448892640865,
+    "median_return": 0.11185682326621685,
+    "win_rate": 0.5109780439121756,
+    "signal_days": 206
+  },
+  "rotation_support": {
+    "sample_count": 277,
+    "avg_return": 1.264828833174019,
+    "median_return": 0.9109311740890673,
+    "win_rate": 0.7436823104693141,
+    "signal_days": 145
+  },
+  "whitelist_rotation_support": {
+    "sample_count": 74,
+    "avg_return": 0.9896191855637416,
+    "median_return": 0.595599056687421,
+    "win_rate": 0.6621621621621622,
+    "signal_days": 52
+  }
+}

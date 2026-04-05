@@ -1,0 +1,3 @@
+ts_code,trade_date,close,turnover_rate,turnover_rate_f,volume_ratio,pe,pe_ttm,pb,ps,ps_ttm,dv_ratio,dv_ttm,total_share,float_share,free_share,total_mv,circ_mv
+920198.BJ,20260323,8.43,3.8035,3.8925,1.45,330.7921,,3.1572,6.4537,7.7014,,,16136.3872,7046.6003,6885.6003,136029.7441,59402.8405
+920198.BJ,20260324,8.69,2.2795,2.3328,0.77,340.9945,,3.2546,6.6528,7.9389,,,16136.3872,7046.6003,6885.6003,140225.2048,61234.9566

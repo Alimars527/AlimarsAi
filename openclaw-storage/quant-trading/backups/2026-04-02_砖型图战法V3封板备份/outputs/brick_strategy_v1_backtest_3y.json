@@ -1,0 +1,19 @@
+{
+  "strategy": "brick_strategy_v1",
+  "date_range": [
+    "20230101",
+    "20260331"
+  ],
+  "summary": {
+    "event_count": 63452,
+    "signal_days": 772,
+    "win_rate": 42.06,
+    "avg_return_pct": 0.2464,
+    "median_return_pct": -0.5063
+  },
+  "annual_board_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/brick_strategy_v1_backtest_3y_annual_board.csv",
+  "monthly_board_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/brick_strategy_v1_backtest_3y_monthly_board.csv",
+  "annual_industry_top5_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/brick_strategy_v1_backtest_3y_annual_industry_top5.csv",
+  "monthly_industry_top3_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/brick_strategy_v1_backtest_3y_monthly_industry_top3.csv",
+  "events_path": "/Users/alimars/.openclaw/workspace/quant-trading/outputs/brick_strategy_v1_backtest_3y_events.csv"
+}
