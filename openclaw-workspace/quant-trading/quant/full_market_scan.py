@@ -14,6 +14,8 @@ from .b1_perfect_features import add_b1_perfect_features
 from .single_pin_bucket import add_single_pin_low20_flags
 from .brick_bucket import add_brick_flags
 from .brick_formula import add_brick_formula_flags
+from .brick_v3_strict import brick_v3_strict_hit
+from .b1_experimental_v1 import b1_experimental_v1_ok
 from .local_data_store import LocalDataStore
 
 
@@ -89,9 +91,16 @@ class FullMarketScanner:
                 df = df.merge(full_brick[brick_cols], on='trade_date', how='left')
 
             basic_df = self._load_local_daily_basic(code, '20000101', trade_date)
-            if not basic_df.empty and 'volume_ratio' in basic_df.columns:
-                basic_df['volume_ratio'] = pd.to_numeric(basic_df['volume_ratio'], errors='coerce')
-                df = df.merge(basic_df[['trade_date', 'volume_ratio']], on='trade_date', how='left')
+            if not basic_df.empty:
+                merge_cols = ['trade_date']
+                if 'volume_ratio' in basic_df.columns:
+                    basic_df['volume_ratio'] = pd.to_numeric(basic_df['volume_ratio'], errors='coerce')
+                    merge_cols.append('volume_ratio')
+                if 'total_mv' in basic_df.columns:
+                    basic_df['total_mv_billion'] = pd.to_numeric(basic_df['total_mv'], errors='coerce') / 10000.0
+                    merge_cols.append('total_mv_billion')
+                if len(merge_cols) > 1:
+                    df = df.merge(basic_df[merge_cols], on='trade_date', how='left')
             for col in ['open', 'high', 'low', 'close', 'vol', 'pct_chg']:
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors='coerce')
@@ -135,6 +144,9 @@ class FullMarketScanner:
             if latest['close'] < min_price or latest['close'] > max_price:
                 continue
 
+            b1_experimental_v1_hit = b1_experimental_v1_ok(df)
+            brick_v3_hit = brick_v3_strict_hit(df, len(df) - 1, row.get('industry', ''), self.project_root, trade_date)
+
             score = 0
             tags = []
             if row.get('industry', '') in preferred and preference_mode != 'none':
@@ -160,12 +172,12 @@ class FullMarketScanner:
                 tags.append('上涨资金背离')
             if bool(latest.get('single_pin_low20', False)):
                 tags.append('单针')
-            if bool(latest.get('brick_formula_signal', False)) or bool(latest.get('brick_formula_strong_signal', False)) or bool(latest.get('brick_exec_ready', False)):
-                tags.append('砖型图')
+            if brick_v3_hit:
+                tags.append('砖型图V3')
                 score += 1.5
-            if bool(latest.get('brick_formula_strong_signal', False)):
-                tags.append('砖型图放量强化')
-                score += 1
+            if b1_experimental_v1_hit:
+                tags.append('B1实验版V1')
+                score += 2
 
             trend_style = classify_trend_style(latest)
             rotation_support = bool(latest.get('rotation_support', False))
@@ -204,6 +216,9 @@ class FullMarketScanner:
                     'b2_shape_ready': bool(latest.get('b2_shape_ready', False)),
                     'perfect_b1': bool(latest.get('perfect_b1', False)),
                     'standard_b1': bool(latest.get('standard_b1', False)),
+                    'b1_v3': False,
+                    'b1_experimental_v1': b1_experimental_v1_hit,
+                    'brick_v3': brick_v3_hit,
                     'weak_b1': bool(latest.get('weak_b1', False)),
                     'b1_rise_on_volume': bool(latest.get('b1_rise_on_volume', False)),
                     'b1_pullback_on_shrink': bool(latest.get('b1_pullback_on_shrink', False)),
@@ -221,7 +236,7 @@ class FullMarketScanner:
                     'brick_formula_signal': bool(latest.get('brick_formula_signal', False)),
                     'brick_formula_strong_signal': bool(latest.get('brick_formula_strong_signal', False)),
                     'brick_formula_turn_red': bool(latest.get('brick_formula_turn_red', False)),
-                    'line_a_core': bool(latest.get('standard_b1', False)) and bool(latest.get('brick_formula_signal', False)) and bool(float(latest.get('mf_amount_5', 0) or 0) > 0),
+                    'line_a_core': bool(latest.get('standard_b1', False)) and brick_v3_hit and bool(float(latest.get('mf_amount_5', 0) or 0) > 0),
                     'rotation_support': bool(latest.get('rotation_support', False)),
                     'rotation_support_level': latest.get('rotation_support_level', 'none'),
                     'resonance_whitelist': row.get('industry', '') in resonance_whitelist,

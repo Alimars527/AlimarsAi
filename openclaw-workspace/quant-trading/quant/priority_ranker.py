@@ -23,7 +23,7 @@ def rank_candidates_for_execution(candidates):
         tag = candidate_strategy_tag(c)
         rank = score
 
-        line_a = bool(c.get('standard_b1', False)) and bool(c.get('brick_formula_signal', False))
+        line_a = bool(c.get('standard_b1', False)) and bool(c.get('brick_v3', False))
         if line_a:
             rank += 5
         if bool(c.get('rotation_support', False)):

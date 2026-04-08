@@ -62,6 +62,12 @@ def main():
         if c['code'] not in existing:
             merged_candidates.append(c)
     candidates = filter_for_next_day(merged_candidates[:12])
+    candidates = [
+        c for c in candidates
+        if bool(c.get('b1_v3', False))
+        or bool(c.get('b1_experimental_v1', False))
+        or bool(c.get('brick_v3', False))
+    ]
     focus_candidates, watch_candidates, avoid_chase_candidates = split_candidate_buckets(candidates)
 
     md = build_trade_plan(reviews, market_summary, sector_rotation, candidates, rotation_report)
@@ -70,7 +76,7 @@ def main():
     out_md = ROOT / settings['report']['output_markdown_latest']
     out_json = ROOT / settings['report']['output_json']
     out_md.write_text(md, encoding='utf-8')
-    brick_base = [c for c in candidates if c.get('brick_raw_turn_red') or c.get('brick_formula_signal')]
+    brick_base = [c for c in candidates if c.get('brick_v3', False)]
     brick_a = [c for c in brick_base if c.get('brick_a_group_ok')]
     brick_ab = [c for c in brick_a if c.get('brick_b_group_ok')]
     brick_abc = [c for c in brick_ab if c.get('brick_c_group_ok')]

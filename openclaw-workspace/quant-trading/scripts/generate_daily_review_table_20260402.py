@@ -14,6 +14,7 @@ JSON_PATH = ROOT / 'outputs' / f'daily_review_candidates_{TRADE_DATE}.json'
 from quant.indicators import add_tactic_base_indicators
 from quant.brick_formula import add_brick_formula_flags
 from quant.levels import infer_key_levels
+from quant.b1_experimental_v1 import b1_experimental_v1_ok
 
 
 def add_bbi(df):
@@ -27,7 +28,7 @@ def j_threshold(td):
     return {'2023': -10, '2024': 0, '2025': 18}.get(str(td)[:4], 25)
 
 
-def b1_v2_ok(df, idx):
+def b1_v3_base_ok(df, idx):
     td = str(df.iloc[idx]['trade_date'])
     high = pd.to_numeric(df.iloc[idx]['high'], errors='coerce')
     white = pd.to_numeric(df.iloc[idx]['white_line'], errors='coerce')
@@ -139,7 +140,8 @@ def main():
             take_profit = round(min(x for x in [pressure] if x is not None), 3) if pressure is not None else round(close_px * 1.05, 3)
             rr = round((take_profit - est_buy) / max(est_buy - stop_loss, 0.001), 2) if stop_loss is not None and take_profit is not None else None
 
-            b1 = b1_v2_ok(df, idx)
+            b1_base = b1_v3_base_ok(df, idx)
+            b1_experimental_v1 = b1_experimental_v1_ok(df, idx)
             brick_v1 = bool(latest.get('brick_raw_turn_red', False)) and bool(latest.get('brick_history_ok', False))
             z = pd.to_numeric(df['brick_formula_value'], errors='coerce').fillna(0)
             green = df['brick_formula_green'].fillna(False).astype(bool)
@@ -158,11 +160,14 @@ def main():
                     z.iloc[idx-4] > z.iloc[idx-3] > z.iloc[idx-2] > z.iloc[idx-1] and
                     z.iloc[idx] >= z.iloc[idx-1]
                 )
-            if not (b1 or brick_v3):
+            b1_v3 = bool(b1_base and (rr is not None) and (rr >= 1.5))
+            if not (b1_v3 or b1_experimental_v1 or brick_v3):
                 continue
             strategy = []
-            if b1:
-                strategy.append('B1_V2')
+            if b1_v3:
+                strategy.append('B1_V3')
+            if b1_experimental_v1:
+                strategy.append('B1_EXPERIMENTAL_V1')
             if brick_v3:
                 strategy.append('BRICK_V3')
             rows.append({
@@ -184,7 +189,8 @@ def main():
                 'rotation_top5': 'Y' if rotation_map.get((TRADE_DATE, row.industry), False) else 'N',
                 'brick_v1_hit': 'Y' if brick_v1 else 'N',
                 'brick_v3_hit': 'Y' if brick_v3 else 'N',
-                'b1_v2_hit': 'Y' if b1 else 'N',
+                'b1_v3_hit': 'Y' if b1_v3 else 'N',
+                'b1_experimental_v1_hit': 'Y' if b1_experimental_v1 else 'N',
                 'note': '到区间后仍需结合盘面确认，不是到价即买'
             })
         except Exception:
@@ -192,16 +198,34 @@ def main():
 
     out = pd.DataFrame(rows)
     if not out.empty:
-        out['sort_key'] = out['strategy_tags'].map(lambda s: 0 if 'B1_V2+BRICK_V3' in s else (1 if 'B1_V2' in s else 2))
+        def _sort_key(s):
+            tags = str(s)
+            if 'B1_V3' in tags and 'B1_EXPERIMENTAL_V1' in tags and 'BRICK_V3' in tags:
+                return 0
+            if 'B1_V3' in tags and 'B1_EXPERIMENTAL_V1' in tags:
+                return 1
+            if 'B1_V3' in tags and 'BRICK_V3' in tags:
+                return 2
+            if 'B1_EXPERIMENTAL_V1' in tags and 'BRICK_V3' in tags:
+                return 3
+            if 'B1_V3' in tags:
+                return 4
+            if 'B1_EXPERIMENTAL_V1' in tags:
+                return 5
+            if 'BRICK_V3' in tags:
+                return 6
+            return 9
+        out['sort_key'] = out['strategy_tags'].map(_sort_key)
         out = out.sort_values(['sort_key', 'reward_risk_ratio', 'close'], ascending=[True, False, False]).drop(columns=['sort_key'])
     CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
     out.to_csv(CSV_PATH, index=False, encoding='utf-8-sig')
 
     md = []
-    md.append(f'# 20260402 每日复盘候选表')
+    md.append(f'# {TRADE_DATE} 每日复盘候选表')
     md.append('')
     md.append('## 说明')
-    md.append('- 候选池同时包含：B1 战法 V2、砖型图 V3')
+    md.append('- 候选池同时包含：B1_V3（位置质量过滤正式候选口径）、B1实验版V1、砖型图 V3')
+    md.append('- 其中 B1_V3 按最优正式候选口径筛选：B1_V3 基础信号 + reward/risk >= 1.5')
     md.append('- 预计购入成本默认按当日收盘近似，仅作隔日计划参考')
     md.append('- 止盈/止损为本地策略参考位，最终仍需结合盘面确认')
     md.append('')
@@ -215,10 +239,10 @@ def main():
     if out.empty:
         md.append('今日无命中候选。')
     else:
-        md.append('|代码|名称|行业|策略|预计购入成本|止盈|止损|RR|备注|')
-        md.append('|---|---|---|---|---:|---:|---:|---:|---|')
-        for r in out.head(80).itertuples(index=False):
-            md.append(f'|{r.ts_code}|{r.name}|{r.industry}|{r.strategy_tags}|{r.estimated_buy_cost}|{r.take_profit}|{r.stop_loss}|{r.reward_risk_ratio}|{r.note}|')
+        md.append('|推荐序|代码|名称|行业|策略|B1_V3|B1实验版V1|砖型图 V3|预计购入成本|止盈|止损|RR|备注|')
+        md.append('|---:|---|---|---|---|---|---|---|---:|---:|---:|---:|---|')
+        for i, r in enumerate(out.head(80).itertuples(index=False), start=1):
+            md.append(f'|{i}|{r.ts_code}|{r.name}|{r.industry}|{r.strategy_tags}|{"☑" if r.b1_v3_hit == "Y" else "☐"}|{"☑" if r.b1_experimental_v1_hit == "Y" else "☐"}|{"☑" if r.brick_v3_hit == "Y" else "☐"}|{r.estimated_buy_cost}|{r.take_profit}|{r.stop_loss}|{r.reward_risk_ratio}|{r.note}|')
     MD_PATH.write_text('\n'.join(md), encoding='utf-8')
 
     JSON_PATH.write_text(json.dumps({

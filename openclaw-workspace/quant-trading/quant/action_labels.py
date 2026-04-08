@@ -34,6 +34,8 @@ def holding_trigger_plan(review):
 def candidate_strategy_tag(candidate):
     style = candidate.get('execution_style', '')
     industry = candidate.get('industry', '')
+    if candidate.get('b1_experimental_v1', False):
+        return 'B1实验版V1'
     if industry in ['半导体', '元器件', '消费电子', '电气设备']:
         return '主线趋势'
     if industry in ['白酒', '医药商业', '化学制药']:

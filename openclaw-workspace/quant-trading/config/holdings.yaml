@@ -1,10 +1,15 @@
-updated_at: '2026-04-02T23:11:00+08:00'
+updated_at: '2026-04-08T21:13:00+08:00'
+total_assets: 44271.41
 holdings:
 - code: 002594.SZ
   name: 比亚迪
   cost: 101.701
   quantity: 1
-- code: 600674.SH
-  name: 川投能源
-  cost: 15.186
-  quantity: 9
+- code: 002039.SZ
+  name: 黔源电力
+  cost: 19.093
+  quantity: 4
+- code: 601858.SH
+  name: 中国科传
+  cost: 22.7
+  quantity: 5

@@ -9,6 +9,8 @@ from .moneyflow_features import add_moneyflow_features
 from .hkhold_features import add_hkhold_features
 from .margin_features import add_margin_features
 from .brick_formula import add_brick_formula_flags
+from .brick_v3_strict import brick_v3_strict_hit
+from .b1_experimental_v1 import b1_experimental_v1_ok
 from .local_data_store import LocalDataStore
 from .rotation_support_filter import build_rotation_support_proxy, add_rotation_support_filter
 
@@ -96,9 +98,16 @@ class CandidateSelector:
                 df = df.merge(full_brick[brick_cols], on='trade_date', how='left')
 
             basic_df = self._load_local_daily_basic(code, start_date=start_date, end_date=trade_date)
-            if not basic_df.empty and 'volume_ratio' in basic_df.columns:
-                basic_df['volume_ratio'] = pd.to_numeric(basic_df['volume_ratio'], errors='coerce')
-                df = df.merge(basic_df[['trade_date', 'volume_ratio']], on='trade_date', how='left')
+            if not basic_df.empty:
+                merge_cols = ['trade_date']
+                if 'volume_ratio' in basic_df.columns:
+                    basic_df['volume_ratio'] = pd.to_numeric(basic_df['volume_ratio'], errors='coerce')
+                    merge_cols.append('volume_ratio')
+                if 'total_mv' in basic_df.columns:
+                    basic_df['total_mv_billion'] = pd.to_numeric(basic_df['total_mv'], errors='coerce') / 10000.0
+                    merge_cols.append('total_mv_billion')
+                if len(merge_cols) > 1:
+                    df = df.merge(basic_df[merge_cols], on='trade_date', how='left')
 
             for col in ['open', 'high', 'low', 'close', 'vol', 'pct_chg']:
                 if col in df.columns:
@@ -129,6 +138,9 @@ class CandidateSelector:
             latest = df.iloc[-1]
             if latest['close'] < min_price or latest['close'] > max_price:
                 continue
+
+            b1_experimental_v1_hit = b1_experimental_v1_ok(df)
+            brick_v3_hit = brick_v3_strict_hit(df, len(df) - 1, row['industry'], self.project_root, trade_date)
 
             score = 0
             reason = []
@@ -165,12 +177,12 @@ class CandidateSelector:
             if float(latest.get('mf_amount_5', 0) or 0) > 0:
                 score += 1
                 reason.append('近5日资金净流入')
-            if bool(latest.get('brick_formula_signal', False)):
+            if brick_v3_hit:
                 score += 1.5
-                reason.append('砖型图')
-            if bool(latest.get('brick_formula_strong_signal', False)):
-                score += 1
-                reason.append('砖型图放量强化')
+                reason.append('砖型图V3')
+            if b1_experimental_v1_hit:
+                score += 2.0
+                reason.append('B1实验版V1')
             if bool(latest.get('mf_divergence', False)):
                 score -= 1
                 reason.append('上涨资金背离')
@@ -205,9 +217,12 @@ class CandidateSelector:
                     'mf_positive_5': bool(float(latest.get('mf_amount_5', 0) or 0) > 0),
                     'mf_positive_days_5_ok': bool(float(latest.get('mf_positive_days_5', 0) or 0) >= 3),
                     'standard_b1': bool(latest.get('standard_b1', False)),
+                    'b1_v3': False,
+                    'b1_experimental_v1': b1_experimental_v1_hit,
+                    'brick_v3': brick_v3_hit,
                     'brick_formula_signal': bool(latest.get('brick_formula_signal', False)),
                     'brick_formula_strong_signal': bool(latest.get('brick_formula_strong_signal', False)),
-                    'line_a_core': bool(latest.get('standard_b1', False)) and bool(latest.get('brick_formula_signal', False)) and bool(float(latest.get('mf_amount_5', 0) or 0) > 0),
+                    'line_a_core': bool(latest.get('standard_b1', False)) and brick_v3_hit and bool(float(latest.get('mf_amount_5', 0) or 0) > 0),
                     'rotation_support': rotation_support,
                     'rotation_support_level': rotation_support_level,
                     'resonance_whitelist': row['industry'] in resonance_whitelist,

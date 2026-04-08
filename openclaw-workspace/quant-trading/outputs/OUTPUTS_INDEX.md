@@ -16,3 +16,6 @@
 ## 使用建议
 - 人工查看时：优先从分类目录进入
 - 脚本读取时：仍优先使用原始文件路径（兼容旧代码）
+
+## 当前重点结果（新增）
+- `sim_replay_20230101_b1_v3_position_quality_formal_candidate_summary.json`：B1_V3 位置质量过滤正式候选版结果

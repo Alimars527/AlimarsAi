@@ -64,6 +64,22 @@
 
 ---
 
+### `reports/战法策略库/`
+用于存放：
+- 战法版本资料库
+- B1正式版各版本
+- 砖型图各版本
+- B1实验版各版本
+- 战法版本总表
+
+优先阅读：
+- `reports/战法策略库/战法版本总表.md`
+- `reports/战法策略库/B1正式版/`
+- `reports/战法策略库/砖型图/`
+- `reports/战法策略库/B1实验版/`
+
+---
+
 ## 二、推荐恢复顺序
 如果上下文丢失，推荐：
 
@@ -86,6 +102,8 @@
 - `docs/strategies/B1_STRATEGY_V2_FINAL_2026-04-03.md`
 - `docs/strategies/BRICK_STRATEGY_V3_2026-04-02.md`
 - `docs/strategies/B1_STRATEGY_V3_DRAFT_2026-04-05.md`
+- `reports/战法回测对比/B1_V3_位置质量过滤正式版候选_2026-04-07.md`
+- `reports/战法策略库/战法版本总表.md`
 
 ### 输出整理入口
 - `outputs/OUTPUTS_INDEX.md`
@@ -98,3 +116,4 @@
 - 新的研究笔记/验证笔记 → 放 `docs/research/`
 - 历史恢复材料/状态快照 → 放 `docs/recovery/`
 - 根目录尽量只保留项目入口文件
+- 用户手动提供的环境数值类输入 → 放 `data/manual_inputs/`，并在 README / RECOVERY_INDEX 中同步说明
