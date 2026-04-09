@@ -1,15 +1,14 @@
-updated_at: '2026-04-08T21:13:00+08:00'
-total_assets: 44271.41
+updated_at: '2026-04-09T14:50:00+08:00'
 holdings:
 - code: 002594.SZ
   name: 比亚迪
   cost: 101.701
   quantity: 1
-- code: 002039.SZ
-  name: 黔源电力
-  cost: 19.093
-  quantity: 4
-- code: 601858.SH
-  name: 中国科传
-  cost: 22.7
-  quantity: 5
+- code: 000568.SZ
+  name: 泸州老窖
+  cost: 102.791
+  quantity: 1
+- code: 603659.SH
+  name: 璞泰来
+  cost: 31.867
+  quantity: 3
