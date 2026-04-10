@@ -1,14 +1,14 @@
-updated_at: '2026-04-09T14:50:00+08:00'
+updated_at: '2026-04-10T17:51:00+08:00'
 holdings:
-- code: 002594.SZ
-  name: 比亚迪
-  cost: 101.701
+- code: 002756.SZ
+  name: 永兴材料
+  cost: 71.77
   quantity: 1
 - code: 000568.SZ
   name: 泸州老窖
-  cost: 102.791
+  cost: 102.25
   quantity: 1
-- code: 603659.SH
-  name: 璞泰来
-  cost: 31.867
-  quantity: 3
+- code: 159545.SZ
+  name: 恒生红利低波ETF易方达
+  cost: 1.429
+  quantity: 350
