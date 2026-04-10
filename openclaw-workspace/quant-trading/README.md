@@ -28,11 +28,12 @@
 
 ## 恢复优先读取文件
 如果发生上下文丢失/换模型/会话中断，优先读取：
-1. `RECOVERY_INDEX.md`
-2. `docs/phase/PROJECT_STATE_BACKUP_2026-03-18.md`
-3. `docs/recovery/STATE_SNAPSHOT.json`
-4. `config/holdings.yaml`
-5. `outputs/latest_plan.md`
+1. `AI_HANDOFF_GUIDE.md`
+2. `RECOVERY_INDEX.md`
+3. `docs/phase/PROJECT_STATE_BACKUP_2026-03-18.md`
+4. `docs/recovery/STATE_SNAPSHOT.json`
+5. `config/holdings.yaml`
+6. `outputs/latest_plan.md`
 
 ## 手动环境数值更新流程（重要）
 - 当用户手动提供类似“市场活跃市值”这类环境数值时，不能只在对话里记住，必须同步写入本地文件。

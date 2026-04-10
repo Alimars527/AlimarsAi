@@ -7,6 +7,11 @@
 
 ## 一、当前项目状态（最新口径）
 
+### AI 接手总入口
+- **AI 接手指南**：`AI_HANDOFF_GUIDE.md`
+- 建议后续 AI 接手时先读该文件，再进入本索引与各子文档。
+
+
 ### 当前正式版本
 - **B1 战法正式封板版**：`docs/strategies/B1_STRATEGY_V2_FINAL_2026-04-03.md`
 - **砖型图正式封板版**：`docs/strategies/BRICK_STRATEGY_V3_2026-04-02.md`
