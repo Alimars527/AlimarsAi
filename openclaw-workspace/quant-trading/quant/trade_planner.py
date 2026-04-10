@@ -31,6 +31,8 @@ def _candidate_trade_levels(candidate):
 
     if candidate.get('b1_v3', False):
         sell_strategy = '先看 8% 左右止盈；跌破止损位离场，冲高可分批减仓'
+    elif candidate.get('b1_v4b', False):
+        sell_strategy = '按B1实验版V4-B执行：前两日弱结构已过滤；处于avg5(1,2]时按降权区间谨慎执行，走弱或破位离场'
     elif candidate.get('b1_experimental_v1', False):
         sell_strategy = '按实验版V1执行：10%减半、20%再减；走弱或破位离场'
     elif candidate.get('brick_v3', False):
@@ -53,14 +55,14 @@ def _candidate_trade_levels(candidate):
 
 def _append_strategy_table(lines, candidates):
     ranked = rank_candidates_for_execution(candidates or [])
-    lines.append('## 三列候选表（B1_V3 / B1实验版V1 / 砖型图 V3）')
-    lines.append('> 说明：B1_V3 这里按最优正式候选口径理解；若当日无命中，则对应列为空勾。')
+    lines.append('## 三列候选表（B1_V3 / B1实验版V4-B / 砖型图 V3）')
+    lines.append('> 说明：B1_V3 这里按最优正式候选口径理解；B1实验版列当前已切换为收益最高的 V4-B 口径；若当日无命中，则对应列为空勾。')
     lines.append('')
     if not ranked:
         lines.append('- 今日无候选股。')
         lines.append('')
         return
-    lines.append('| 推荐序 | 标的 | 代码 | 行业 | B1_V3 | B1实验版V1 | 砖型图 V3 | 建议买入点 | 卖出策略 | 止盈 | 止损 | 备注 |')
+    lines.append('| 推荐序 | 标的 | 代码 | 行业 | B1_V3 | B1实验版V4-B | 砖型图 V3 | 建议买入点 | 卖出策略 | 止盈 | 止损 | 备注 |')
     lines.append('|---:|---|---|---|---|---|---|---|---|---:|---:|---|')
     for i, c in enumerate(ranked, start=1):
         note_parts = []
@@ -74,7 +76,7 @@ def _append_strategy_table(lines, candidates):
         lines.append(
             f"| {i} | {c.get('name','')} | {c.get('code','')} | {c.get('industry','')} | "
             f"{_strategy_checkbox(c.get('b1_v3', False))} | "
-            f"{_strategy_checkbox(c.get('b1_experimental_v1', False))} | "
+            f"{_strategy_checkbox(c.get('b1_v4b', False))} | "
             f"{_strategy_checkbox(c.get('brick_v3', False))} | "
             f"{lv['buy_text']} | {lv['sell_strategy']} | {lv['take_profit']} | {lv['stop_loss']} | {'；'.join(note_parts)} |"
         )

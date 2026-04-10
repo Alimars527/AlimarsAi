@@ -10,7 +10,7 @@ from .hkhold_features import add_hkhold_features
 from .margin_features import add_margin_features
 from .brick_formula import add_brick_formula_flags
 from .brick_v3_strict import brick_v3_strict_hit
-from .b1_experimental_v1 import b1_experimental_v1_ok
+from .b1_experimental_v4b import b1_experimental_v4b_ok, b1_v4b_deweight_hit
 from .local_data_store import LocalDataStore
 from .rotation_support_filter import build_rotation_support_proxy, add_rotation_support_filter
 
@@ -139,7 +139,8 @@ class CandidateSelector:
             if latest['close'] < min_price or latest['close'] > max_price:
                 continue
 
-            b1_experimental_v1_hit = b1_experimental_v1_ok(df)
+            b1_v4b_hit = b1_experimental_v4b_ok(df, len(df) - 1, self.project_root)
+            b1_v4b_deweight = b1_v4b_deweight_hit(df, len(df) - 1, self.project_root)
             brick_v3_hit = brick_v3_strict_hit(df, len(df) - 1, row['industry'], self.project_root, trade_date)
 
             score = 0
@@ -180,9 +181,12 @@ class CandidateSelector:
             if brick_v3_hit:
                 score += 1.5
                 reason.append('砖型图V3')
-            if b1_experimental_v1_hit:
+            if b1_v4b_hit:
                 score += 2.0
-                reason.append('B1实验版V1')
+                reason.append('B1实验版V4-B')
+            if b1_v4b_deweight:
+                score -= 0.5
+                reason.append('V4-B降权区间')
             if bool(latest.get('mf_divergence', False)):
                 score -= 1
                 reason.append('上涨资金背离')
@@ -218,7 +222,9 @@ class CandidateSelector:
                     'mf_positive_days_5_ok': bool(float(latest.get('mf_positive_days_5', 0) or 0) >= 3),
                     'standard_b1': bool(latest.get('standard_b1', False)),
                     'b1_v3': False,
-                    'b1_experimental_v1': b1_experimental_v1_hit,
+                    'b1_experimental_v1': False,
+                    'b1_v4b': b1_v4b_hit,
+                    'b1_v4b_deweight': b1_v4b_deweight,
                     'brick_v3': brick_v3_hit,
                     'brick_formula_signal': bool(latest.get('brick_formula_signal', False)),
                     'brick_formula_strong_signal': bool(latest.get('brick_formula_strong_signal', False)),

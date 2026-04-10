@@ -15,7 +15,7 @@ from .single_pin_bucket import add_single_pin_low20_flags
 from .brick_bucket import add_brick_flags
 from .brick_formula import add_brick_formula_flags
 from .brick_v3_strict import brick_v3_strict_hit
-from .b1_experimental_v1 import b1_experimental_v1_ok
+from .b1_experimental_v4b import b1_experimental_v4b_ok, b1_v4b_deweight_hit
 from .local_data_store import LocalDataStore
 
 
@@ -144,7 +144,8 @@ class FullMarketScanner:
             if latest['close'] < min_price or latest['close'] > max_price:
                 continue
 
-            b1_experimental_v1_hit = b1_experimental_v1_ok(df)
+            b1_v4b_hit = b1_experimental_v4b_ok(df, len(df) - 1, self.project_root)
+            b1_v4b_deweight = b1_v4b_deweight_hit(df, len(df) - 1, self.project_root)
             brick_v3_hit = brick_v3_strict_hit(df, len(df) - 1, row.get('industry', ''), self.project_root, trade_date)
 
             score = 0
@@ -175,9 +176,12 @@ class FullMarketScanner:
             if brick_v3_hit:
                 tags.append('砖型图V3')
                 score += 1.5
-            if b1_experimental_v1_hit:
-                tags.append('B1实验版V1')
+            if b1_v4b_hit:
+                tags.append('B1实验版V4-B')
                 score += 2
+            if b1_v4b_deweight:
+                tags.append('V4-B降权区间')
+                score -= 0.5
 
             trend_style = classify_trend_style(latest)
             rotation_support = bool(latest.get('rotation_support', False))
@@ -217,7 +221,9 @@ class FullMarketScanner:
                     'perfect_b1': bool(latest.get('perfect_b1', False)),
                     'standard_b1': bool(latest.get('standard_b1', False)),
                     'b1_v3': False,
-                    'b1_experimental_v1': b1_experimental_v1_hit,
+                    'b1_experimental_v1': False,
+                    'b1_v4b': b1_v4b_hit,
+                    'b1_v4b_deweight': b1_v4b_deweight,
                     'brick_v3': brick_v3_hit,
                     'weak_b1': bool(latest.get('weak_b1', False)),
                     'b1_rise_on_volume': bool(latest.get('b1_rise_on_volume', False)),

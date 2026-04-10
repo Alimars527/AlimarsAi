@@ -65,7 +65,7 @@ def main():
     candidates = [
         c for c in candidates
         if bool(c.get('b1_v3', False))
-        or bool(c.get('b1_experimental_v1', False))
+        or bool(c.get('b1_v4b', False))
         or bool(c.get('brick_v3', False))
     ]
     focus_candidates, watch_candidates, avoid_chase_candidates = split_candidate_buckets(candidates)
