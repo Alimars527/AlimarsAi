@@ -103,7 +103,10 @@
 - `docs/strategies/BRICK_STRATEGY_V3_2026-04-02.md`
 - `docs/strategies/B1_STRATEGY_V3_DRAFT_2026-04-05.md`
 - `reports/战法回测对比/B1_V3_位置质量过滤正式版候选_2026-04-07.md`
+- `reports/战法回测对比/B1本体优化首轮对照_2026-04-10.md`
 - `reports/战法策略库/战法版本总表.md`
+- `reports/战法策略库/B1实验版/B1实验版_V4_A_前两日结构过滤版.md`
+- `reports/战法策略库/B1实验版/B1实验版_V4_B_前两日结构过滤加avg5轻降权版.md`
 
 ### 输出整理入口
 - `outputs/OUTPUTS_INDEX.md`
