@@ -233,6 +233,14 @@ def main():
 
     omav = load_omav()
     omav_map = omav.set_index("trade_date").to_dict("index")
+    omav_avg5_map = {}
+    if "trade_date" in omav.columns:
+        om2 = omav.copy().sort_values("trade_date").reset_index(drop=True)
+        val_col = "omav" if "omav" in om2.columns else ("omav_value" if "omav_value" in om2.columns else None)
+        if val_col is not None:
+            om2[val_col] = safe_num(om2[val_col])
+            om2["avg5_prev"] = om2[val_col].shift(1).rolling(5).mean()
+            omav_avg5_map = om2.set_index("trade_date")["avg5_prev"].to_dict()
     cal = load_trade_calendar()
     cal_set = set(cal)
 
