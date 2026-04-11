@@ -165,37 +165,18 @@ def main():
 
     meta = load_universe(DATA)
 
-    code_data: Dict[str, pd.DataFrame] = {}
-    code_idx: Dict[str, Dict[str, int]] = {}
-    industry_daily_ret_rows = []
-
     print(f"[INFO] preparing universe: {len(meta)}")
-    for r in meta.itertuples(index=False):
-        c = r.ts_code
-        df = prepare_code_df(c, START_DATE, END_DATE, DATA)
-        if df is None or len(df) < 40:
-            continue
-        code_data[c] = df
-        code_idx[c] = {td: i for i, td in enumerate(df["trade_date"].tolist())}
-        t = df[["trade_date", "pct_chg"]].copy()
-        t["industry"] = r.industry
-        industry_daily_ret_rows.append(t)
+    meta, code_data, code_idx, rotation_map = build_prepared_universe(
+        START_DATE,
+        END_DATE,
+        DATA,
+        min_rows=40,
+    )
 
     print(f"[INFO] usable codes: {len(code_data)}")
 
-    if not industry_daily_ret_rows:
+    if not rotation_map:
         raise RuntimeError("no usable codes")
-
-    ind_df = pd.concat(industry_daily_ret_rows, ignore_index=True)
-    ind_df["pct_chg"] = safe_num(ind_df["pct_chg"])
-    board = (
-        ind_df.groupby(["trade_date", "industry"], as_index=False)["pct_chg"]
-        .mean()
-        .sort_values(["trade_date", "pct_chg"], ascending=[True, False])
-    )
-    board["rank"] = board.groupby("trade_date")["pct_chg"].rank(method="first", ascending=False)
-    board_top5 = board[board["rank"] <= 5].copy()
-    rotation_map = board_top5.assign(flag=True).set_index(["trade_date", "industry"])["flag"].to_dict()
 
     cash = INITIAL_CAPITAL
     positions: List[Position] = []

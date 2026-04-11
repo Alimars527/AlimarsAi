@@ -23,6 +23,15 @@ from typing import Dict, List, Optional
 
 import pandas as pd
 
+from quant.sim_replay_common import (
+    build_prepared_universe,
+    load_omav,
+    load_trade_calendar,
+    load_universe,
+    prepare_code_df,
+    safe_num,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 DATA = ROOT / "data"
@@ -165,87 +174,10 @@ def b1_experimental_ok(df: pd.DataFrame, idx: int) -> bool:
     return bool(B1.iloc[-1])
 
 
-def load_omav() -> pd.DataFrame:
-    p = DATA / "omav" / "omav_daily_standardized_20260402.csv"
-    df = pd.read_csv(p, dtype={"trade_date": str})
-    df = df.sort_values("trade_date").reset_index(drop=True)
-    # 兜底：如果列不存在，就按规则临时计算
-    if "omav_rotation_warning_flag" not in df.columns:
-        df["omav_rotation_warning_flag"] = safe_num(df.get("omav_value")).fillna(0) <= -2.3
-    if "omav_bear_regime_flag" not in df.columns:
-        if "omav_5day_sum" in df.columns:
-            df["omav_bear_regime_flag"] = safe_num(df["omav_5day_sum"]).fillna(0) < -5
-        else:
-            v = safe_num(df.get("omav_value")).fillna(0)
-            df["omav_bear_regime_flag"] = v.rolling(5).sum() < -5
-    return df
-
-
-def load_trade_calendar() -> List[str]:
-    cal = pd.read_csv(DATA / "daily" / "000001.SZ.csv", dtype={"trade_date": str})[["trade_date"]]
-    cal = cal.drop_duplicates().sort_values("trade_date")
-    return [d for d in cal["trade_date"].tolist() if START_DATE <= d <= END_DATE]
-
-
-def load_universe() -> pd.DataFrame:
-    meta = pd.read_csv(DATA / "meta" / "stock_basic.csv", dtype=str).fillna("")
-    meta = meta[~meta["ts_code"].str.endswith(".BJ")]
-    meta = meta[~meta["name"].str.upper().str.contains("ST", na=False)]
-    meta = meta[~meta["industry"].str.contains("房地产", na=False)]
-    meta = meta[meta["industry"] != "银行"]
-    # 当前口径：不做创业板
-    meta = meta[~meta["ts_code"].str.startswith("300")]
-    return meta[["ts_code", "name", "industry", "list_date"]].copy()
-
-
-def prepare_code_df(code: str) -> Optional[pd.DataFrame]:
-    from quant.indicators import add_tactic_base_indicators
-    from quant.brick_formula import add_brick_formula_flags
-
-    p_daily = DATA / "daily" / f"{code}.csv"
-    p_basic = DATA / "daily_basic" / f"{code}.csv"
-    if not p_daily.exists() or not p_basic.exists():
-        return None
-
-    try:
-        d = pd.read_csv(p_daily, dtype={"trade_date": str}).sort_values("trade_date").reset_index(drop=True)
-        b = pd.read_csv(p_basic, dtype={"trade_date": str})
-        if d.empty or "trade_date" not in d.columns:
-            return None
-
-        for c in ["open", "high", "low", "close", "vol", "pct_chg"]:
-            if c in d.columns:
-                d[c] = safe_num(d[c])
-
-        if "total_mv" in b.columns:
-            b = b[["trade_date", "total_mv"]].copy()
-            b["total_mv_billion"] = safe_num(b["total_mv"]) / 10000.0
-            d = d.merge(b[["trade_date", "total_mv_billion"]], on="trade_date", how="left")
-        else:
-            d["total_mv_billion"] = pd.NA
-
-        d = add_tactic_base_indicators(d)
-        d = add_brick_formula_flags(d)
-
-        # 需要列兜底
-        for c in ["brick_formula_green", "brick_raw_turn_red", "brick_history_ok"]:
-            if c not in d.columns:
-                d[c] = False
-        if "brick_formula_value" not in d.columns:
-            d["brick_formula_value"] = 0.0
-
-        d = d[(d["trade_date"] >= START_DATE) & (d["trade_date"] <= END_DATE)].copy()
-        if d.empty:
-            return None
-        return d.reset_index(drop=True)
-    except Exception:
-        return None
-
-
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
 
-    omav = load_omav()
+    omav = load_omav(DATA)
     omav_map = omav.set_index("trade_date").to_dict("index")
     omav_avg5_map = {}
     if "trade_date" in omav.columns:
@@ -255,42 +187,23 @@ def main():
             om2[val_col] = safe_num(om2[val_col])
             om2["avg5_prev"] = om2[val_col].shift(1).rolling(5).mean()
             omav_avg5_map = om2.set_index("trade_date")["avg5_prev"].to_dict()
-    cal = load_trade_calendar()
+    cal = load_trade_calendar(START_DATE, END_DATE, DATA)
     cal_set = set(cal)
 
-    meta = load_universe()
-
-    code_data: Dict[str, pd.DataFrame] = {}
-    code_idx: Dict[str, Dict[str, int]] = {}
-    industry_daily_ret_rows = []
+    meta = load_universe(DATA)
 
     print(f"[INFO] preparing universe: {len(meta)}")
-    for r in meta.itertuples(index=False):
-        c = r.ts_code
-        df = prepare_code_df(c)
-        if df is None or len(df) < 40:
-            continue
-        code_data[c] = df
-        code_idx[c] = {td: i for i, td in enumerate(df["trade_date"].tolist())}
-        t = df[["trade_date", "pct_chg"]].copy()
-        t["industry"] = r.industry
-        industry_daily_ret_rows.append(t)
+    meta, code_data, code_idx, rotation_map = build_prepared_universe(
+        START_DATE,
+        END_DATE,
+        DATA,
+        min_rows=40,
+    )
 
     print(f"[INFO] usable codes: {len(code_data)}")
 
-    if not industry_daily_ret_rows:
+    if not rotation_map:
         raise RuntimeError("no usable codes")
-
-    ind_df = pd.concat(industry_daily_ret_rows, ignore_index=True)
-    ind_df["pct_chg"] = safe_num(ind_df["pct_chg"])
-    board = (
-        ind_df.groupby(["trade_date", "industry"], as_index=False)["pct_chg"]
-        .mean()
-        .sort_values(["trade_date", "pct_chg"], ascending=[True, False])
-    )
-    board["rank"] = board.groupby("trade_date")["pct_chg"].rank(method="first", ascending=False)
-    board_top5 = board[board["rank"] <= 5].copy()
-    rotation_map = board_top5.assign(flag=True).set_index(["trade_date", "industry"])["flag"].to_dict()
 
     save_progress("running", 0, len(cal), "starting")
     cash = INITIAL_CAPITAL
