@@ -91,10 +91,14 @@ def build_summary_lines(summary_paths: List[Path]) -> List[str]:
 
 
 def run_and_tee(command: List[str], log_path: Path, cwd: Path) -> int:
+    env = os.environ.copy()
+    existing = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = str(cwd) if not existing else f"{cwd}{os.pathsep}{existing}"
     with log_path.open("w", encoding="utf-8") as log_fh:
         proc = subprocess.Popen(
             command,
             cwd=str(cwd),
+            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
