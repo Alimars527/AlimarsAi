@@ -52,6 +52,7 @@ class Position:
     buy_price: float
     shares: int
     hold_days: int
+    signal_close: float = 0.0
     initial_shares: int = 0
     tp1_done: bool = False
     tp2_done: bool = False
