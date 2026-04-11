@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import pandas as pd
 
@@ -142,3 +142,47 @@ def prepare_code_df(
         return d
     except Exception:
         return None
+
+
+def build_prepared_universe(
+    start_date: str,
+    end_date: str,
+    data_dir: Optional[Path] = None,
+    min_rows: int = 40,
+    progress_cb: Optional[Callable[[int, int], None]] = None,
+) -> tuple[pd.DataFrame, dict[str, pd.DataFrame], dict[str, dict[str, int]], dict[tuple[str, str], bool]]:
+    data_dir = Path(data_dir) if data_dir else DATA
+    meta = load_universe(data_dir)
+
+    code_data: dict[str, pd.DataFrame] = {}
+    code_idx: dict[str, dict[str, int]] = {}
+    industry_daily_ret_rows = []
+
+    total = len(meta)
+    for i, r in enumerate(meta.itertuples(index=False), start=1):
+        c = r.ts_code
+        df = prepare_code_df(c, start_date, end_date, data_dir)
+        if df is not None and len(df) >= min_rows:
+            code_data[c] = df
+            code_idx[c] = {td: j for j, td in enumerate(df["trade_date"].tolist())}
+            t = df[["trade_date", "pct_chg"]].copy()
+            t["industry"] = r.industry
+            industry_daily_ret_rows.append(t)
+        if progress_cb:
+            progress_cb(i, total)
+
+    if industry_daily_ret_rows:
+        ind_df = pd.concat(industry_daily_ret_rows, ignore_index=True)
+        ind_df["pct_chg"] = safe_num(ind_df["pct_chg"])
+        board = (
+            ind_df.groupby(["trade_date", "industry"], as_index=False)["pct_chg"]
+            .mean()
+            .sort_values(["trade_date", "pct_chg"], ascending=[True, False])
+        )
+        board["rank"] = board.groupby("trade_date")["pct_chg"].rank(method="first", ascending=False)
+        board_top5 = board[board["rank"] <= 5].copy()
+        rotation_map = board_top5.assign(flag=True).set_index(["trade_date", "industry"])["flag"].to_dict()
+    else:
+        rotation_map = {}
+
+    return meta, code_data, code_idx, rotation_map
