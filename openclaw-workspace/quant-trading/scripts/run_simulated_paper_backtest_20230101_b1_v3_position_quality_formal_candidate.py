@@ -198,6 +198,10 @@ def prepare_code_df(code: str) -> Optional[pd.DataFrame]:
         d = add_tactic_base_indicators(d)
         d = add_brick_formula_flags(d)
 
+        # B1 位置质量过滤依赖支撑/压力位；若不显式补列，后续 RR 过滤会把所有 B1 信号误杀成 NaN。
+        d["support"] = pd.to_numeric(d["low"], errors="coerce").rolling(10).min()
+        d["pressure"] = pd.to_numeric(d["high"], errors="coerce").rolling(10).max()
+
         # 需要列兜底
         for c in ["brick_formula_green", "brick_raw_turn_red", "brick_history_ok"]:
             if c not in d.columns:
