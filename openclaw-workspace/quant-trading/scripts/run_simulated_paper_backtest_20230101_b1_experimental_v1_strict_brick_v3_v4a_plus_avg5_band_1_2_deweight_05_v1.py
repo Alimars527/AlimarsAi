@@ -9,9 +9,9 @@
 - 资金：10w 起步，A股100股一手
 
 输出：
-- outputs/sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_summary.json
-- outputs/sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_trades.csv
-- outputs/sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_nav.csv
+- outputs/sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_summary.json
+- outputs/sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_trades.csv
+- outputs/sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_nav.csv
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ B1_MAX_HOLD_DAYS = 10
 B1_WEAK_EXIT_PCT = 0.05
 B1_TP1 = 0.10
 B1_TP2 = 0.20
-PROGRESS_PATH = OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_progress.json"
+PROGRESS_PATH = OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_progress.json"
 
 
 @dataclass
@@ -385,7 +385,7 @@ def main():
                         try:
                             avg5_prev = float(avg5_prev)
                             if 1 < avg5_prev <= 2 and not (s["b1"] and s["brick"]):
-                                budget *= 0.85
+                                budget *= 0.5
                                 deweight = True
                         except Exception:
                             pass
@@ -452,13 +452,13 @@ def main():
         "total_return_pct": round(total_return, 2),
         "trade_count": int(len(trades_df)),
         "win_rate_pct": round(float((trades_df["net_pnl"] > 0).mean() * 100), 2) if not trades_df.empty else 0.0,
-        "nav_path": str(OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_nav.csv"),
-        "trades_path": str(OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_trades.csv"),
+        "nav_path": str(OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_nav.csv"),
+        "trades_path": str(OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_trades.csv"),
     }
 
-    nav.to_csv(OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_nav.csv", index=False, encoding="utf-8-sig")
-    trades_df.to_csv(OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_trades.csv", index=False, encoding="utf-8-sig")
-    (OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_085_v1_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    nav.to_csv(OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_nav.csv", index=False, encoding="utf-8-sig")
+    trades_df.to_csv(OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_trades.csv", index=False, encoding="utf-8-sig")
+    (OUT / "sim_replay_20230101_b1_experimental_v1_strict_brick_v3_v4a_plus_avg5_band_1_2_deweight_05_v1_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 
     save_progress("done", len(cal), len(cal), "finished")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
