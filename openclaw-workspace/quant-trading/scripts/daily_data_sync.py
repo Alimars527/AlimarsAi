@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """
-每日收盘后数据同步脚本
-- 同步上证指数日线
-- 同步持仓股票日线
-- 同步日线财务数据（市值等）
-然后触发日报生成
+每日收盘后数据同步脚本（全市场批量版）
 
 用法: python daily_data_sync.py [TRADE_DATE]
 不传参数则自动拉今天的数据
+
+核心逻辑：
+- pro.daily(trade_date=) 可一次性拉全市场所有股票（~5500只）
+- pro.daily_basic(trade_date=) 同理，一次性拉全市场财务数据
+- pro.index_daily() 拉上证指数
+- 数据写入 data/daily/ 和 data/daily_basic/ 下的分股票CSV
+- 已有数据采用 dedup + merge 策略，不重复拉取
 """
 
 import sys
@@ -20,140 +23,153 @@ import tushare as ts
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from quant.config import load_holdings, load_settings
+from quant.config import load_settings
 
 
 def get_trade_date():
     if len(sys.argv) >= 2:
         return sys.argv[1]
-    # 自动：今天如果是交易日就今天，否则取上一个交易日
     today = datetime.now()
     return today.strftime('%Y%m%d')
 
 
-def sync_index_daily(pro, trade_date: str, root: Path) -> int:
-    """同步上证指数，返回新增条数"""
-    # 取最近20天数据确保覆盖
-    start = (datetime.strptime(trade_date, '%Y%m%d') - timedelta(days=25)).strftime('%Y%m%d')
+def sync_market_daily(pro, trade_date: str, root: Path) -> dict:
+    """
+    全市场日线批量同步（核心高效路径）
+    一次API调用返回所有股票当日数据
+    """
+    df = pro.daily(trade_date=trade_date)
+    if df is None or df.empty:
+        return {'status': 'no_data', 'rows': 0}
+
+    df = df.sort_values('ts_code')
+    total = len(df)
+    print(f"  全市场日线：获取到 {total} 条记录")
+
+    # 写入分股票CSV
+    daily_dir = root / 'data' / 'daily'
+    daily_dir.mkdir(parents=True, exist_ok=True)
+
+    written = 0
+    for ts_code in df['ts_code'].unique():
+        code_df = df[df['ts_code'] == ts_code].copy()
+        path = daily_dir / f'{ts_code}.csv'
+        if path.exists():
+            existing = pd.read_csv(path, dtype=str)
+            merged = pd.concat([existing, code_df]).drop_duplicates(subset='trade_date', keep='last')
+            merged = merged.sort_values('trade_date')
+            merged.to_csv(path, index=False)
+        else:
+            code_df.to_csv(path, index=False)
+        written += 1
+
+    return {'status': 'ok', 'rows': total, 'files_written': written}
+
+
+def sync_market_daily_basic(pro, trade_date: str, root: Path) -> dict:
+    """
+    全市场日线财务数据批量同步
+    一次API调用返回所有股票当日财务数据（市值/PE/换手率等）
+    """
+    df = pro.daily_basic(trade_date=trade_date)
+    if df is None or df.empty:
+        return {'status': 'no_data', 'rows': 0}
+
+    df = df.sort_values('ts_code')
+    total = len(df)
+    print(f"  全市场财务：获取到 {total} 条记录")
+
+    daily_basic_dir = root / 'data' / 'daily_basic'
+    daily_basic_dir.mkdir(parents=True, exist_ok=True)
+
+    written = 0
+    for ts_code in df['ts_code'].unique():
+        code_df = df[df['ts_code'] == ts_code].copy()
+        path = daily_basic_dir / f'{ts_code}.csv'
+        if path.exists():
+            existing = pd.read_csv(path, dtype=str)
+            merged = pd.concat([existing, code_df]).drop_duplicates(subset='trade_date', keep='last')
+            merged = merged.sort_values('trade_date')
+            merged.to_csv(path, index=False)
+        else:
+            code_df.to_csv(path, index=False)
+        written += 1
+
+    return {'status': 'ok', 'rows': total, 'files_written': written}
+
+
+def sync_index_daily(pro, trade_date: str, root: Path) -> dict:
+    """同步上证指数"""
+    # 拉最近30天确保有足够数据计算market_regime
+    start = (datetime.strptime(trade_date, '%Y%m%d') - timedelta(days=35)).strftime('%Y%m%d')
     df = pro.index_daily(ts_code='000001.SH', start_date=start, end_date=trade_date)
     if df is None or df.empty:
-        print(f"  [WARN] 上证指数{trade_date}无数据")
-        return 0
+        return {'status': 'no_data'}
+
     df = df.sort_values('trade_date')
     path = root / 'data' / 'index_daily' / '000001.SH.csv'
-    existing = pd.read_csv(path, dtype=str) if path.exists() else pd.DataFrame()
-    merged = pd.concat([existing, df]).drop_duplicates(subset='trade_date', keep='last').sort_values('trade_date')
-    merged.to_csv(path, index=False)
-    new_rows = len(df[df['trade_date'] == trade_date]) if 'trade_date' in df.columns else len(df)
-    print(f"  [OK] 上证指数 -> {path.name}，今日:{trade_date}，新增{new_rows}条")
-    return new_rows
-
-
-def sync_stock_daily(pro, ts_code: str, trade_date: str, root: Path) -> dict:
-    """同步单只股票日线，返回状态"""
-    start = (datetime.strptime(trade_date, '%Y%m%d') - timedelta(days=25)).strftime('%Y%m%d')
-    df = pro.daily(ts_code=ts_code, start_date=start, end_date=trade_date)
-    if df is None or df.empty:
-        return {'status': 'no_data', 'code': ts_code}
-    df = df.sort_values('trade_date')
-    path = root / 'data' / 'daily' / f'{ts_code}.csv'
-    existing = pd.read_csv(path, dtype=str) if path.exists() else pd.DataFrame()
-    merged = pd.concat([existing, df]).drop_duplicates(subset='trade_date', keep='last').sort_values('trade_date')
-    merged.to_csv(path, index=False)
-    new_rows = len(df[df['trade_date'] == trade_date]) if 'trade_date' in df.columns else len(df)
-    return {'status': 'ok', 'code': ts_code, 'new_rows': new_rows, 'close': df[df['trade_date'] == trade_date]['close'].values[0] if new_rows > 0 else None}
-
-
-def sync_daily_basic(pro, ts_code: str, trade_date: str, root: Path) -> dict:
-    """同步日线财务数据"""
-    df = pro.daily_basic(ts_code=ts_code, start_date=trade_date, end_date=trade_date)
-    if df is None or df.empty:
-        return {'status': 'no_data', 'code': ts_code}
-    path = root / 'data' / 'daily_basic' / f'{ts_code}.csv'
-    existing = pd.read_csv(path, dtype=str) if path.exists() else pd.DataFrame()
-    merged = pd.concat([existing, df]).drop_duplicates(subset='trade_date', keep='last').sort_values('trade_date')
-    merged.to_csv(path, index=False)
-    return {'status': 'ok', 'code': ts_code}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists():
+        existing = pd.read_csv(path, dtype=str)
+        merged = pd.concat([existing, df]).drop_duplicates(subset='trade_date', keep='last')
+        merged = merged.sort_values('trade_date')
+        merged.to_csv(path, index=False)
+    else:
+        df.to_csv(path, index=False)
+    return {'status': 'ok', 'rows': len(df)}
 
 
 def main():
     settings = load_settings()
-    holdings_data = load_holdings()
-    holdings = holdings_data.get('holdings', [])
-    
     trade_date = get_trade_date()
     today_str = datetime.now().strftime('%Y-%m-%d %H:%M')
-    
-    print(f"\n=== 每日数据同步 {today_str} ===")
+
+    print(f"\n=== 每日数据同步（全市场版）===")
     print(f"目标交易日: {trade_date}")
-    
+    print(f"执行时间: {today_str}")
+
     token = settings['data']['tushare_token']
     pro = ts.pro_api(token)
-    
-    # 1. 同步上证指数
+
+    # 1. 上证指数（必选）
     print("\n[1/3] 同步上证指数...")
-    sync_index_daily(pro, trade_date, ROOT)
-    
-    # 2. 同步持仓股票
-    print("\n[2/3] 同步持仓股票日线...")
-    etf_codes = [h for h in holdings if 'ETF' in h.get('name', '') or h.get('code', '').startswith('15')]
-    stock_codes = [h for h in holdings if h not in etf_codes]
-    
-    results = []
-    for item in stock_codes:
-        code = item['code']
-        # 确保带后缀
-        if not (code.endswith('.SH') or code.endswith('.SZ') or code.endswith('.BJ')):
-            code = f"{code}.SH" if code.startswith('6') else f"{code}.SZ"
-        result = sync_stock_daily(pro, code, trade_date, ROOT)
-        results.append(result)
-        if result['status'] == 'ok':
-            close = result.get('close', '?')
-            print(f"  [OK] {code} 收盘:{close}")
-        else:
-            print(f"  [SKIP] {code} 无今日数据")
-    
-    # 3. 同步日线财务（持仓股）
-    print("\n[3/3] 同步日线财务数据...")
-    for item in stock_codes:
-        code = item['code']
-        if not (code.endswith('.SH') or code.endswith('.SZ') or code.endswith('.BJ')):
-            code = f"{code}.SH" if code.startswith('6') else f"{code}.SZ"
-        sync_daily_basic(pro, code, trade_date, ROOT)
-    
-    print(f"\n=== 数据同步完成 {trade_date} ===\n")
-    
-    # 4. 触发日报生成
-    print("[4/4] 触发日报生成...")
-    import subprocess
-    result = subprocess.run(
-        [sys.executable, str(ROOT / 'scripts' / 'run_daily_pipeline.py')],
-        capture_output=True,
-        text=True,
-        timeout=120
-    )
-    if result.returncode == 0:
-        print("  [OK] 日报生成成功")
-        print(result.stdout.strip().split('\n')[-1])  # 最后一行
+    r = sync_index_daily(pro, trade_date, ROOT)
+    if r['status'] == 'ok':
+        print(f"  [OK] 上证指数已更新 {r['rows']} 条")
     else:
-        print(f"  [ERROR] 日报生成失败: {result.stderr}")
-    
-    # 输出现场摘要
-    summary_path = ROOT / 'outputs' / 'latest_summary.json'
-    if summary_path.exists():
-        summary = json.loads(summary_path.read_text(encoding='utf-8'))
-        holdings_info = summary.get('holdings', [])
-        market_info = summary.get('market', {})
-        print(f"\n=== 今日快照 ===")
-        print(f"市场环境: {market_info.get('regime', '?')} ({market_info.get('summary', '')})")
-        for h in holdings_info:
-            if 'error' in h:
-                print(f"  {h.get('name', h.get('code'))}: {h.get('error')}")
-            else:
-                close = h.get('close', '?')
-                pct = h.get('pct_chg', 0)
-                total_pnl = h.get('total_pnl_pct', 0)
-                print(f"  {h.get('name')}: {close} ({pct:+.2f}%) 总盈亏:{total_pnl:+.2f}%")
+        print(f"  [WARN] 上证指数无数据（可能是非交易日）")
+
+    # 2. 全市场日线（核心！5000+股票）
+    print("\n[2/3] 同步全市场日线（约5500只）...")
+    r = sync_market_daily(pro, trade_date, ROOT)
+    if r['status'] == 'ok':
+        print(f"  [OK] 全市场日线完成：{r['rows']} 条，{r['files_written']} 个股票文件已写入/更新")
+    else:
+        print(f"  [WARN] 全市场日线无数据")
+
+    # 3. 全市场财务数据
+    print("\n[3/3] 同步全市场财务数据...")
+    r = sync_market_daily_basic(pro, trade_date, ROOT)
+    if r['status'] == 'ok':
+        print(f"  [OK] 全市场财务完成：{r['rows']} 条，{r['files_written']} 个股票文件已写入/更新")
+    else:
+        print(f"  [WARN] 全市场财务无数据")
+
+    print(f"\n=== 数据同步完成 {trade_date} ===")
+
+    # 4. 验证最新数据
+    print("\n[验证] 检查最新数据日期...")
+    index_path = ROOT / 'data' / 'index_daily' / '000001.SH.csv'
+    if index_path.exists():
+        idx_tail = pd.read_csv(index_path, dtype=str).tail(1).iloc[0]
+        print(f"  上证指数最新：{idx_tail['trade_date']}")
+
+    sample_codes = ['002756.SZ', '000568.SZ']
+    for code in sample_codes:
+        p = ROOT / 'data' / 'daily' / code
+        if p.exists():
+            tail = pd.read_csv(p, dtype=str).tail(1).iloc[0]
+            print(f"  {code} 最新：{tail['trade_date']} 收盘:{tail['close']}")
 
 
 if __name__ == '__main__':
