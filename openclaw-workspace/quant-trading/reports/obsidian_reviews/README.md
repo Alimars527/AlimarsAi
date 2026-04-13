@@ -24,17 +24,21 @@
 
 ### ① 数据更新
 - 触发词："数据更新"、"拉数据"、"同步数据"
-- 含义：拉取并同步每日基础行情数据
+- 含义：拉取并同步每日全市场行情数据（全5000+股票）
+- 核心接口：
+  - `pro.daily(trade_date=)` — 全市场日线，**一次性返回约5500只股票**
+  - `pro.daily_basic(trade_date=)` — 全市场财务数据，同理一次性拉取
+  - `pro.index_daily()` — 上证指数（最近35天）
 - 执行内容：
-  - 上证指数日线（000001.SH）
-  - 每只持仓股票的日线（close/vol/amount/pct_chg 等）
-  - 股票基本信息（行业/板块归属）
-  - 日线财务数据（市值/PE/换手率）
+  - 全市场日线数据（close/vol/amount/pct_chg 等）
+  - 全市场日线财务数据（市值/PE/换手率等）
+  - 上证指数日线
 - 数据存放路径：
   - `data/index_daily/000001.SH.csv`
-  - `data/daily/{ts_code}.csv`
+  - `data/daily/{ts_code}.csv`（每只股票一个文件）
   - `data/daily_basic/{ts_code}.csv`
 - 脚本：`scripts/daily_data_sync.py`
+- 性能：全市场约5500只股票，2-3分钟完成全量拉取
 - 注意：ETF（如红利低波）无Tushare日线数据，属正常现象
 
 ---
