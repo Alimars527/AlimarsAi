@@ -248,8 +248,8 @@ def load_industry_monthly_winrate() -> Dict[str, Dict[str, float]]:
     if df.empty:
         return {}
 
-    # 提取买入年月
-    df["buy_year_month"] = df["buy_date"].str[:7]
+    # 提取买入年月 (buy_date格式为 "20230216" 8位数字)
+    df["buy_year_month"] = df["buy_date"].str[:4] + "-" + df["buy_date"].str[4:6]
 
     # 按 (buy_year_month, industry) 计算胜率
     stats = df.groupby(["buy_year_month", "industry"]).agg(
