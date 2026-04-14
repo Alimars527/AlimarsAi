@@ -1,14 +1,22 @@
-updated_at: '2026-04-10T17:51:00+08:00'
+updated_at: '2026-04-14T18:30:00+08:00'
 holdings:
 - code: 002756.SZ
   name: 永兴材料
   cost: 71.77
   quantity: 1
-- code: 000568.SZ
-  name: 泸州老窖
-  cost: 102.25
-  quantity: 1
+- code: 002709.SZ
+  name: 天赐材料
+  cost: null
+  quantity: null
 - code: 159545.SZ
   name: 恒生红利低波ETF易方达
   cost: 1.429
   quantity: 350
+- code: 603601.SH
+  name: 再升科技
+  cost: 14.21
+  quantity: 5
+- code: 002294.SZ
+  name: 信立泰
+  cost: 62.721
+  quantity: 1
