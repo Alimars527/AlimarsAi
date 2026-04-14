@@ -8,6 +8,7 @@ from pathlib import Path
 from quant.sim_replay_common import (
     load_universe, prepare_code_df, V4_EXCLUDED_INDUSTRIES, DATA
 )
+from quant.b1_b2_signals import detect_b1_b2_signals
 
 TRADE_DATE = "20260414"
 START_DATE = "20250101"
@@ -43,6 +44,9 @@ def scan():
             df = prepare_code_df(code, START_DATE, TRADE_DATE, DATA)
             if df is None or len(df) < 30:
                 continue
+
+            # 计算 B1/B2 信号（prepare_code_df 不含此步骤）
+            df = detect_b1_b2_signals(df)
 
             latest = df.iloc[-1]
             prev = df.iloc[-2]
