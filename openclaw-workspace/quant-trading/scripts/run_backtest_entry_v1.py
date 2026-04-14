@@ -309,6 +309,8 @@ def _run_backtest(
     nav_rows = []
 
     for td_i, td in enumerate(cal):
+        if td_i % 100 == 0:
+            print("  [%s] day %d/%d pos=%d cash=%.0f" % (mode, td_i, len(cal), len(positions), cash), flush=True)
         # 1) Close positions
         remain: List[Position] = []
         for p in positions:
@@ -528,7 +530,7 @@ def _market_value(
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
 
-    print("[INFO] loading OMAV + calendar...")
+    print("[INFO] loading OMAV + calendar...", flush=True)
     omav = load_omav(DATA)
     omav_map = omav.set_index("trade_date").to_dict("index")
     omav_avg5_map = {}
@@ -542,7 +544,7 @@ def main():
     cal = load_trade_calendar(START_DATE, END_DATE, DATA)
     cal_set = set(cal)
 
-    print("[INFO] building universe (V4 hard blacklist)...")
+    print("[INFO] building universe (V4 hard blacklist)...", flush=True)
     meta, code_data, code_idx, rotation_map = build_prepared_universe(
         START_DATE,
         END_DATE,
@@ -550,27 +552,27 @@ def main():
         min_rows=40,
         excluded_industries=V4_EXCLUDED_INDUSTRIES,
     )
-    print("[INFO] usable codes:", len(code_data))
+    print("[INFO] usable codes: %d" % len(code_data), flush=True)
 
     # ── Run baseline ──
-    print("[INFO] === BASELINE (hardcoded entry) ===")
+    print("[INFO] === BASELINE (hardcoded entry) ===", flush=True)
     bl = _run_backtest(
         "baseline", meta, code_data, code_idx, rotation_map,
         cal, omav_map, omav_avg5_map, cal_set,
     )
     print("  total_return: %.2f%%  trades: %d  win_rate: %.1f%%" % (
         bl["total_return_pct"], bl["trade_count"], bl["win_rate_pct"]
-    ))
+    ), flush=True)
 
     # ── Run V1 ──
-    print("[INFO] === V1 (entry plan v1) ===")
+    print("[INFO] === V1 (entry plan v1) ===", flush=True)
     v1 = _run_backtest(
         "v1", meta, code_data, code_idx, rotation_map,
         cal, omav_map, omav_avg5_map, cal_set,
     )
     print("  total_return: %.2f%%  trades: %d  win_rate: %.1f%%" % (
         v1["total_return_pct"], v1["trade_count"], v1["win_rate_pct"]
-    ))
+    ), flush=True)
 
     # ── Per-strategy breakdown ──
     def _strategy_breakdown(trades_df: pd.DataFrame) -> dict:
