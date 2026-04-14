@@ -6,8 +6,8 @@ holdings:
   quantity: 1
 - code: 002709.SZ
   name: 天赐材料
-  cost: null
-  quantity: null
+  cost: 46.39
+  quantity: 1
 - code: 159545.SZ
   name: 恒生红利低波ETF易方达
   cost: 1.429
