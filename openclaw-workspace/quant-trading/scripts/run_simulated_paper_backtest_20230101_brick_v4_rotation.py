@@ -467,15 +467,33 @@ def main():
                         "b1": b1,
                         "brick": brick,
                         "j": float(safe_num(row.get("kdj_j"))) if pd.notna(safe_num(row.get("kdj_j"))) else 999,
+                        "prev_wr": get_prev_month_winrate(r.industry, td, industry_winrate),
                     }
                 )
 
-        # 3) 排序 + 开仓
+        # 3) V4行业胜率过滤 + 排序 + 开仓
+        if can_open > 0 and sigs:
+            # V4: 过滤掉上月胜率 < 40% 的行业信号
+            filtered_sigs = []
+            skipped_low_wr = 0
+            for s in sigs:
+                prev_wr = s["prev_wr"]
+                if prev_wr is not None and prev_wr < 0.40:
+                    skipped_low_wr += 1
+                    continue
+                filtered_sigs.append(s)
+            if skipped_low_wr > 0:
+                pass  # 可选日志
+            sigs = filtered_sigs
+
         if can_open > 0 and sigs:
             def _rank(s):
-                # 重合 > brick > b1
+                # V4: 胜率降权 — 上月胜率在40%-55%之间的排在后面
+                prev_wr = s["prev_wr"]
+                wr_penalty = 1 if (prev_wr is not None and prev_wr < 0.55) else 0
+                # 原有排序逻辑
                 p = 0 if (s["b1"] and s["brick"]) else (1 if s["brick"] else 2)
-                return (p, s["j"])
+                return (wr_penalty, p, s["j"])
 
             sigs = sorted(sigs, key=_rank)
             selected = sigs[: can_open * 2]  # 多看一点，避免不成交
@@ -485,7 +503,7 @@ def main():
                 if opened >= can_open:
                     break
 
-                strategy = "BRICK_V3"
+                strategy = "BRICK_V4_ROTATION"
                 buy_price = min(s["signal_close"] * 0.995, s["next_open"] * 0.99)
                 hold_days = 1
 
@@ -555,13 +573,13 @@ def main():
         "total_return_pct": round(total_return, 2),
         "trade_count": int(len(trades_df)),
         "win_rate_pct": round(float((trades_df["net_pnl"] > 0).mean() * 100), 2) if not trades_df.empty else 0.0,
-        "nav_path": str(OUT / "sim_replay_20230101_strict_brick_v3_only_nav.csv"),
-        "trades_path": str(OUT / "sim_replay_20230101_strict_brick_v3_only_trades.csv"),
+        "nav_path": str(OUT / "sim_replay_20230101_brick_v4_rotation_nav.csv"),
+        "trades_path": str(OUT / "sim_replay_20230101_brick_v4_rotation_trades.csv"),
     }
 
-    nav.to_csv(OUT / "sim_replay_20230101_strict_brick_v3_only_nav.csv", index=False, encoding="utf-8-sig")
-    trades_df.to_csv(OUT / "sim_replay_20230101_strict_brick_v3_only_trades.csv", index=False, encoding="utf-8-sig")
-    (OUT / "sim_replay_20230101_strict_brick_v3_only_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    nav.to_csv(OUT / "sim_replay_20230101_brick_v4_rotation_nav.csv", index=False, encoding="utf-8-sig")
+    trades_df.to_csv(OUT / "sim_replay_20230101_brick_v4_rotation_trades.csv", index=False, encoding="utf-8-sig")
+    (OUT / "sim_replay_20230101_brick_v4_rotation_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
