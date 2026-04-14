@@ -9,6 +9,23 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 
 
+# ── V4 硬黑名单 ──────────────────────────────────────
+# 基于V3历史回测诊断，排除长期系统性亏损的10个行业。
+# 来源: sim_replay_20230101_brick_v4_hard_filter (251.79% vs V3 101.64%)
+V4_EXCLUDED_INDUSTRIES: set[str] = {
+    '航空',       # 16 trades, PnL=-11,849, WR=43.8%
+    '电气设备',   # 16 trades, PnL=-7,985
+    '旅游服务',   # 5 trades, PnL=-7,805 (全亏)
+    '黄金',       # 17 trades, PnL=-7,730
+    '全国地产',   # 4 trades, PnL=-7,455, WR=0%
+    '轻工机械',   # PnL≈-6,000
+    '农药化肥',   # PnL≈-5,000
+    '石油贸易',   # PnL≈-4,800
+    '矿物制品',   # PnL≈-4,400
+    '专用机械',   # PnL≈-4,400
+}
+
+
 def _default_cache_dir(data_dir: Path) -> Path:
     return data_dir / "cache" / "sim_replay_prepared"
 
@@ -60,7 +77,16 @@ def load_trade_calendar(start_date: str, end_date: str, data_dir: Optional[Path]
     return [d for d in cal["trade_date"].tolist() if start_date <= d <= end_date]
 
 
-def load_universe(data_dir: Optional[Path] = None) -> pd.DataFrame:
+def load_universe(
+    data_dir: Optional[Path] = None,
+    excluded_industries: Optional[set[str]] = None,
+) -> pd.DataFrame:
+    """加载股票池。
+
+    Args:
+        data_dir: 数据目录，默认 DATA。
+        excluded_industries: 额外排除的行业集合（V4黑名单等），默认不排除。
+    """
     data_dir = Path(data_dir) if data_dir else DATA
     meta = pd.read_csv(data_dir / "meta" / "stock_basic.csv", dtype=str).fillna("")
     meta = meta[~meta["ts_code"].str.endswith(".BJ")]
@@ -68,6 +94,8 @@ def load_universe(data_dir: Optional[Path] = None) -> pd.DataFrame:
     meta = meta[~meta["industry"].str.contains("房地产", na=False)]
     meta = meta[meta["industry"] != "银行"]
     meta = meta[~meta["ts_code"].str.startswith("300")]
+    if excluded_industries:
+        meta = meta[~meta["industry"].isin(excluded_industries)]
     return meta[["ts_code", "name", "industry", "list_date"]].copy()
 
 
@@ -150,9 +178,10 @@ def build_prepared_universe(
     data_dir: Optional[Path] = None,
     min_rows: int = 40,
     progress_cb: Optional[Callable[[int, int], None]] = None,
+    excluded_industries: Optional[set[str]] = None,
 ) -> tuple[pd.DataFrame, dict[str, pd.DataFrame], dict[str, dict[str, int]], dict[tuple[str, str], bool]]:
     data_dir = Path(data_dir) if data_dir else DATA
-    meta = load_universe(data_dir)
+    meta = load_universe(data_dir, excluded_industries=excluded_industries)
 
     code_data: dict[str, pd.DataFrame] = {}
     code_idx: dict[str, dict[str, int]] = {}
