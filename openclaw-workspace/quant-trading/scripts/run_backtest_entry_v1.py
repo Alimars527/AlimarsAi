@@ -21,6 +21,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
 import pandas as pd
 
 from quant.sim_replay_common import (
@@ -33,9 +36,6 @@ from quant.sim_replay_common import (
     safe_num,
 )
 from quant.entry_plan_v1 import compute_entry_v1
-
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
 DATA = ROOT / "data"
 OUT = ROOT / "outputs"
 
