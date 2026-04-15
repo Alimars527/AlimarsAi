@@ -1,0 +1,22 @@
+meta:
+  start_date: '2026-04-15'
+  initial_capital: 50000
+  strategy: T+1, 候选票推荐买入, 止盈止损规则退出
+  rules:
+    max_positions: 3
+    max_single_pct: 30
+    stop_loss: 'B1止损: 黄线破位/10日弱势/高位转弱'
+    take_profit: 'B1止盈: +10%减半, +20%全走'
+    buy_source: 每日候选票推荐Top候选
+    omav_filter: OMAV<0时限仓1只, 观察为主
+portfolio:
+  current_cash: 50000.0
+  holdings: []
+transactions: []
+daily_log:
+- date: '2026-04-15'
+  action: 初始化模拟实盘
+  nav: 50000.0
+  cash: 50000.0
+  holdings_value: 0
+  notes: 起始资金5万, 等待4/16执行4/15候选票买入
