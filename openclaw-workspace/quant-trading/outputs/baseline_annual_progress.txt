@@ -1,0 +1,11 @@
+--- Baseline Annual Backtest Progress ---
+[START] Fresh run
+[LOAD] OMAV + calendar...
+[LOAD] Building universe...
+[READY] 3474 codes, 786 trading days
+[2023] day 1/786 (0.1%) pos=0 cash=100000
+[2023] day 20/786 (2.5%) pos=0 cash=100000
+[2023] day 40/786 (5.1%) pos=3 cash=2913
+[2023] day 60/786 (7.6%) pos=3 cash=15
+[2023] day 80/786 (10.2%) pos=2 cash=41854
+[2023] day 100/786 (12.7%) pos=1 cash=69523
