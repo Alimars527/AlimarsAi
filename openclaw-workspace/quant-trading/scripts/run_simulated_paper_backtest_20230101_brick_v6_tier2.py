@@ -525,13 +525,13 @@ def main():
         "total_return_pct": round(total_return, 2),
         "trade_count": int(len(trades_df)),
         "win_rate_pct": round(float((trades_df["net_pnl"] > 0).mean() * 100), 2) if not trades_df.empty else 0.0,
-        "nav_path": str(OUT / "sim_replay_20230101_brick_v5_tier1_nav.csv"),
-        "trades_path": str(OUT / "sim_replay_20230101_brick_v5_tier1_trades.csv"),
+        "nav_path": str(OUT / "sim_replay_20230101_brick_v6_tier2_nav.csv"),
+        "trades_path": str(OUT / "sim_replay_20230101_brick_v6_tier2_trades.csv"),
     }
 
-    nav.to_csv(OUT / "sim_replay_20230101_brick_v5_tier1_nav.csv", index=False, encoding="utf-8-sig")
-    trades_df.to_csv(OUT / "sim_replay_20230101_brick_v5_tier1_trades.csv", index=False, encoding="utf-8-sig")
-    (OUT / "sim_replay_20230101_brick_v5_tier1_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    nav.to_csv(OUT / "sim_replay_20230101_brick_v6_tier2_nav.csv", index=False, encoding="utf-8-sig")
+    trades_df.to_csv(OUT / "sim_replay_20230101_brick_v6_tier2_trades.csv", index=False, encoding="utf-8-sig")
+    (OUT / "sim_replay_20230101_brick_v6_tier2_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
