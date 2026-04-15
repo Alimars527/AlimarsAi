@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-10w 模拟实盘节奏回放（砖型图 V5 Tier1扩展版）
-- 策略：BRICK_V5_T1（基于V4 + 额外4个Tier1行业硬黑名单）
+10w 模拟实盘节奏回放（砖型图 V6 Tier2扩展版）
+- 策略：BRICK_V6_T2（基于V5 + 额外12个Tier2行业硬黑名单）
 - 环境：OMAV 极致空头不新开仓；转弱降频
 - 执行：
   * Brick: 买入价=min(C*0.995, next_open*0.99)，持有1天后卖出
 - 资金：10w 起步，A股100股一手
-- V5变更：在V4的10个排除行业基础上，增加4个Tier1亏损行业
-  * 化纤(4笔全亏, -11,447), 装修装饰(3笔, -8,706)
-  * 其他商业(3笔全亏, -8,643), 焦炭加工(2笔全亏, -5,680)
+- V6变更：在V5的14个排除行业基础上，增加12个Tier2亏损行业
+  * Tier2-A组(WR<=25%亏损): 水力发电/石油加工/农用机械/机场/饲料/玻璃/白酒/服饰/批发业
+  * Tier2-B组(WR 26-45%亏损): 房产服务/汽车整车/火力发电
   * 月度分析确认这些行业不是板块轮动主力，排除不影响轮动覆盖
 
 输出：
-- outputs/sim_replay_20230101_brick_v5_tier1_summary.json
-- outputs/sim_replay_20230101_brick_v5_tier1_trades.csv
-- outputs/sim_replay_20230101_brick_v5_tier1_nav.csv
+- outputs/sim_replay_20230101_brick_v6_tier2_summary.json
+- outputs/sim_replay_20230101_brick_v6_tier2_trades.csv
+- outputs/sim_replay_20230101_brick_v6_tier2_nav.csv
 """
 
 from __future__ import annotations
@@ -176,7 +176,7 @@ def load_trade_calendar() -> List[str]:
     return [d for d in cal["trade_date"].tolist() if START_DATE <= d <= END_DATE]
 
 
-# Brick V5 Tier1 行业黑名单：V4的10个 + Tier1的4个
+# Brick V6 Tier2 行业黑名单：V4的10个 + Tier1的4个 + Tier2的12个
 EXCLUDED_INDUSTRIES = {
     # === V4 原有10个行业 ===
     '航空',       # 16 trades, PnL=-11,849, WR=43.8%
@@ -194,6 +194,21 @@ EXCLUDED_INDUSTRIES = {
     '装修装饰',   # 3 trades, PnL=-8,706, WR=33%, 月度分析确认非轮动主力
     '其他商业',   # 3 trades, PnL=-8,643, WR=0%, 月度分析确认非轮动主力
     '焦炭加工',   # 2 trades, PnL=-5,680, WR=0%, 月度分析确认非轮动主力
+    # === V6 Tier2 新增12个行业 ===
+    # Tier2-A组: WR<=25%亏损行业(9个)
+    '水力发电',   # 5 trades, PnL=-4,988, WR=20%
+    '石油加工',   # 1 trade,  PnL=-4,834, WR=0%
+    '农用机械',   # 2 trades, PnL=-4,744, WR=0%
+    '机场',       # 1 trade,  PnL=-4,245, WR=0%
+    '饲料',       # 4 trades, PnL=-4,121, WR=25%
+    '玻璃',       # 2 trades, PnL=-3,496, WR=0%
+    '白酒',       # 6 trades, PnL=-3,120, WR=17%
+    '服饰',       # 3 trades, PnL=-2,735, WR=0%
+    '批发业',     # 1 trade,  PnL=-2,076, WR=0%
+    # Tier2-B组: WR 26-45%亏损行业(3个)
+    '房产服务',   # 7 trades, PnL=-3,057, WR=43%
+    '汽车整车',   # 9 trades, PnL=-2,931, WR=33%
+    '火力发电',   # 7 trades, PnL=-3,185, WR=43%
 }
 
 
@@ -440,7 +455,7 @@ def main():
                 if opened >= can_open:
                     break
 
-                strategy = "BRICK_V5_T1"
+                strategy = "BRICK_V6_T2"
                 buy_price = min(s["signal_close"] * 0.995, s["next_open"] * 0.99)
                 hold_days = 1
 
