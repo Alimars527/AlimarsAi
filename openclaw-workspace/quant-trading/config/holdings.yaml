@@ -1,4 +1,4 @@
-updated_at: '2026-04-15T18:00:00+08:00'
+updated_at: '2026-04-16T18:00:00+08:00'
 holdings:
 - code: 002756.SZ
   name: 永兴材料
@@ -12,11 +12,15 @@ holdings:
   name: 恒生红利低波ETF易方达
   cost: 1.429
   quantity: 35000
-- code: 003043.SZ
-  name: 华亚智能
-  cost: 55.771
-  quantity: 1
-- code: 605116.SH
-  name: 奥瑞特
-  cost: 27.805
+- code: 603127.SH
+  name: 昭衍新药
+  cost: 38.025
+  quantity: 2
+- code: 600549.SH
+  name: 厦门钨业
+  cost: 60.596
+  quantity: 2
+- code: 603685.SH
+  name: 晨丰科技
+  cost: 30.695
   quantity: 2
