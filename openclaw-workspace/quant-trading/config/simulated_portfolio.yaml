@@ -1,14 +1,19 @@
 meta:
   start_date: '2026-04-15'
   initial_capital: 50000
-  strategy: T+1, 候选票推荐买入, 止盈止损规则退出
+  strategy: V5-T1砖型图回测逻辑 (持1天T+1卖出)
   rules:
     max_positions: 3
-    max_single_pct: 30
-    stop_loss: 'B1止损: 黄线破位/10日弱势/高位转弱'
-    take_profit: 'B1止盈: +10%减半, +20%全走'
-    buy_source: 每日候选票推荐Top候选
-    omav_filter: OMAV<0时限仓1只, 观察为主
+    max_single_pct: 50
+    buy_price: 'min(信号日收盘×0.995, 次日开盘×0.99)'
+    sell_rule: '固定持有1天后收盘卖出'
+    hold_days: 1
+    position_sizing: '等权开仓 (cash / slots)'
+    omav_control: 'bear不开仓, warn限1只, 正常最多3只'
+    fees: '佣金万0.86(最低5元), 印花税万5(仅卖出)'
+    excluded_industries: '航空/电气设备/旅游服务/黄金/全国地产/轻工机械/农药化肥/石油贸易/矿物制品/专用机械/化纤/装修装饰/其他商业/焦炭加工'
+    signal_source: 'V5-T1砖型图信号 (rotation_map+绿砖递减翻红+白黄线排列)'
+    sorting: '按J值排序, 低J优先'
 portfolio:
   current_cash: 44876.00
   holdings:
@@ -19,10 +24,9 @@ portfolio:
     buy_date: '2026-04-16'
     buy_commission: 5.00
     total_cost: 5124.00
-    source: 4/15候选Top1 B1_V3
+    source: 4/15候选Top1
     industry: 通信设备
-    yellow_line: 45.57
-    notes: T0★主线行业, 弱市限1只, 4/15 OMAV=-0.07
+    notes: 首笔交易(旧规则买入), 4/17按新规则收盘卖出
 transactions:
 - date: '2026-04-16'
   type: buy
@@ -33,8 +37,8 @@ transactions:
   amount: 5119.00
   commission: 5.00
   total_cost: 5124.00
-  reason: 4/15候选Top1, 弱市限仓1只选RR最高
-  signal_source: B1_V3
+  reason: 4/15候选Top1
+  signal_source: 候选票推荐
   omav: -0.07
 daily_log:
 - date: '2026-04-15'
@@ -86,7 +90,7 @@ daily_log:
     name: 烽火通信
     reason: OMAV<0弱市限仓1只, 已满
   watch_for_tomorrow:
-  - 'Top1 亨通光电(600487) — 已持仓, 止盈10%=56.31, 止损黄线45.57'
+  - 'Top1 亨通光电(600487) — 已持仓, 按新规则4/17收盘卖出'
   - 'Top2 高能环境(603588) 买入价≤15.60(白线) 2手≈3,120元'
   - 'Top3 法尔胜(000890) 买入价≤14.16(白线) 2手≈2,832元'
-  notes: OMAV=2.01强势, 明日可正常开仓(最多3只), 亨通光电+3.81%浮盈中
+  notes: OMAV=2.01强势, 明日亨通光电收盘卖出(持1天规则), 可正常开仓(最多3只)
