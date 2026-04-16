@@ -436,17 +436,14 @@ def main():
 
                 score_distribution[score] = score_distribution.get(score, 0) + 1
 
-                if score <= 5:
-                    score_skip_count += 1
-                    continue
-
+                # 方案B：不过滤信号，评分仅排序+仓位微调
                 sigs.append({
                     "code": code, "name": r.name, "industry": r.industry,
                     "signal_date": td, "next_date": str(next_row["trade_date"]),
                     "signal_close": float(row["close"]),
                     "next_open": float(next_row["open"]),
                     "next_low": float(next_row["low"]),
-                    "score": score, "pos_pct": pos_pct,
+                    "score": score,
                     "brick": brick,
                     "j": float(safe_num(row.get("kdj_j"))) if pd.notna(safe_num(row.get("kdj_j"))) else 999,
                 })
@@ -467,8 +464,16 @@ def main():
                 if s["next_low"] > buy_price:
                     continue
 
-                # ★ 评分仓位（替代等权） ★
-                budget = cash * (s["pos_pct"] / 100.0)
+                # ★ 方案B：等权基础 + 评分微调仓位 ★
+                # 等权基础仓位：cash / slots
+                base_budget = cash / can_open
+                # 评分微调：8-10分+20%, 6-7分正常, ≤5分-20%
+                if s["score"] >= 8:
+                    budget = base_budget * 1.2
+                elif s["score"] >= 6:
+                    budget = base_budget
+                else:
+                    budget = base_budget * 0.8
                 shares = int(budget // buy_price // LOT_SIZE) * LOT_SIZE
                 if shares <= 0:
                     continue
@@ -481,9 +486,9 @@ def main():
                 cash -= cost
                 positions.append(Position(
                     code=s["code"], name=s["name"], industry=s["industry"],
-                    strategy="BRICK_V5_T1_SCORED", buy_date=s["next_date"],
+                    strategy="BRICK_V5_T1_SCOREB", buy_date=s["next_date"],
                     buy_price=buy_price, shares=shares, hold_days=hold_days,
-                    initial_shares=shares, score=s["score"], position_pct=s["pos_pct"],
+                    initial_shares=shares, score=s["score"], position_pct=round(budget/cash*100, 1),
                 ))
                 opened += 1
 
@@ -543,7 +548,8 @@ def main():
             }
 
     summary = {
-        "version": "V5_T1_SCORED",
+        "version": "V5_T1_SCOREB",
+        "description": "评分仅排序+微调仓位(不过滤), 8-10分+20%, 6-7分等权, ≤5分-20%",
         "start_date": START_DATE,
         "end_date": END_DATE,
         "initial_capital": INITIAL_CAPITAL,
@@ -560,9 +566,9 @@ def main():
         "baseline_v5_t1": "+181.50% / 552笔 / 胜率52.17% / 回撤13.65%",
     }
 
-    nav.to_csv(OUT / "sim_replay_20230101_brick_v5_tier1_scored_nav.csv", index=False, encoding="utf-8-sig")
-    trades_df.to_csv(OUT / "sim_replay_20230101_brick_v5_tier1_scored_trades.csv", index=False, encoding="utf-8-sig")
-    (OUT / "sim_replay_20230101_brick_v5_tier1_scored_summary.json").write_text(
+    nav.to_csv(OUT / "sim_replay_20230101_brick_v5_tier1_scoreb_nav.csv", index=False, encoding="utf-8-sig")
+    trades_df.to_csv(OUT / "sim_replay_20230101_brick_v5_tier1_scoreb_trades.csv", index=False, encoding="utf-8-sig")
+    (OUT / "sim_replay_20230101_brick_v5_tier1_scoreb_summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(json.dumps(summary, ensure_ascii=False, indent=2))
