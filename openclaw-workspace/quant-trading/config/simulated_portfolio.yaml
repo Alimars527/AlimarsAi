@@ -10,9 +10,32 @@ meta:
     buy_source: 每日候选票推荐Top候选
     omav_filter: OMAV<0时限仓1只, 观察为主
 portfolio:
-  current_cash: 50000.0
-  holdings: []
-transactions: []
+  current_cash: 44876.00
+  holdings:
+  - ts_code: 600487.SH
+    name: 亨通光电
+    shares: 100
+    buy_price: 51.19
+    buy_date: '2026-04-16'
+    buy_commission: 5.00
+    total_cost: 5124.00
+    source: 4/15候选Top1 B1_V3
+    industry: 通信设备
+    yellow_line: 45.57
+    notes: T0★主线行业, 弱市限1只, 4/15 OMAV=-0.07
+transactions:
+- date: '2026-04-16'
+  type: buy
+  ts_code: 600487.SH
+  name: 亨通光电
+  shares: 100
+  price: 51.19
+  amount: 5119.00
+  commission: 5.00
+  total_cost: 5124.00
+  reason: 4/15候选Top1, 弱市限仓1只选RR最高
+  signal_source: B1_V3
+  omav: -0.07
 daily_log:
 - date: '2026-04-15'
   action: 初始化模拟实盘
@@ -33,3 +56,37 @@ daily_log:
   - 'Top2 万邦德(002082) 买入条件: 收盘≤28.57(白线) 1手≈2,857元'
   - 'Top3 烽火通信(600498) 买入条件: 收盘≤49.48(白线) 1手≈4,948元'
   notes: OMAV=-0.07弱市, 理论上限仓1只, 优先选RR最高的亨通光电
+- date: '2026-04-16'
+  action: 日报-第1个交易日
+  nav: 50201.00
+  cash: 44876.00
+  holdings_value: 5314.00
+  holdings:
+  - code: 600487.SH
+    name: 亨通光电
+    shares: 100
+    close: 53.14
+    cost: 51.19
+    pnl: +195.00
+    pnl_pct: +3.81%
+  pnl: +201.00
+  pnl_pct: +0.40%
+  trades:
+  - type: buy
+    code: 600487.SH
+    name: 亨通光电
+    shares: 100
+    price: 51.19
+    reason: 4/15候选Top1, 弱市限1只
+  skipped:
+  - code: 002082.SZ
+    name: 万邦德
+    reason: OMAV<0弱市限仓1只, 已满
+  - code: 600498.SH
+    name: 烽火通信
+    reason: OMAV<0弱市限仓1只, 已满
+  watch_for_tomorrow:
+  - 'Top1 亨通光电(600487) — 已持仓, 止盈10%=56.31, 止损黄线45.57'
+  - 'Top2 高能环境(603588) 买入价≤15.60(白线) 2手≈3,120元'
+  - 'Top3 法尔胜(000890) 买入价≤14.16(白线) 2手≈2,832元'
+  notes: OMAV=2.01强势, 明日可正常开仓(最多3只), 亨通光电+3.81%浮盈中
