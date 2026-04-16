@@ -23,6 +23,9 @@ from typing import Dict, List, Optional
 
 import pandas as pd
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
 from quant.sim_replay_common import (
     build_prepared_universe,
     load_omav,
@@ -32,8 +35,6 @@ from quant.sim_replay_common import (
     safe_num,
 )
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
 DATA = ROOT / "data"
 OUT = ROOT / "outputs"
 
