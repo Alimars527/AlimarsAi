@@ -208,8 +208,8 @@ def load_universe() -> pd.DataFrame:
     meta = meta[meta["industry"] != "银行"]
     # 当前口径：不做创业板
     meta = meta[~meta["ts_code"].str.startswith("300")]
-    # V3行业排除：过滤系统性亏损行业
-    meta = meta[~meta["industry"].isin(EXCLUDED_INDUSTRIES)]
+    # 注意：此处不再排除EXCLUDED_INDUSTRIES，改为在rotation_map计算后过滤
+    # 这样确保rotation_map基于全量行业数据计算，不受排除列表影响
     return meta[["ts_code", "name", "industry", "list_date"]].copy()
 
 
@@ -299,6 +299,10 @@ def main():
     board_top5 = board[board["rank"] <= 5].copy()
     rotation_map = board_top5.assign(flag=True).set_index(["trade_date", "industry"])["flag"].to_dict()
 
+    # rotation_map已基于全量行业数据计算，现在过滤掉排除行业的股票用于交易
+    trading_meta = meta[~meta["industry"].isin(EXCLUDED_INDUSTRIES)].copy()
+    print(f"[INFO] rotation_map from {len(meta)} stocks, trading universe: {len(trading_meta)} stocks (excluded {len(meta)-len(trading_meta)})")
+
     cash = INITIAL_CAPITAL
     positions: List[Position] = []
     trades = []
@@ -361,7 +365,7 @@ def main():
 
         sigs = []
         if can_open > 0:
-            for r in meta.itertuples(index=False):
+            for r in trading_meta.itertuples(index=False):
                 code = r.ts_code
                 if code not in code_data:
                     continue
