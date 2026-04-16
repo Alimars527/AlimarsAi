@@ -66,41 +66,50 @@ class ScoreResult:
 
 
 def score_rr(close: float, white_line: float, yellow_line: float,
-             support: Optional[float] = None) -> tuple:
+             support: Optional[float] = None,
+             brick_signal: bool = False) -> tuple:
     """
     RR比评分（0~3分）
-    基于买入价到白线/黄线的关系，以及下方支撑距离计算风险回报比。
-
-    计算逻辑：
-    - reward = 白线距离（向上空间）
-    - risk = 买入价 - 支撑位（止损空间）
+    
+    砖型图战法场景下，信号日股价通常已在白线附近或上方，
+    因此RR比不依赖"股价到白线的距离"，而是用：
+    - reward = 止盈空间（默认+8%，砖型图标准止盈）
+    - risk = 止损空间（买入价到支撑位/黄线，最小3%）
     - RR = reward / risk
+    
+    砖型图信号自带RR优势（绿砖递减后翻红=趋势启动点），给基础分。
     """
     details = {}
-    if pd.isna(close) or pd.isna(white_line) or pd.isna(yellow_line) or close <= 0:
+    if pd.isna(close) or close <= 0:
         return 0.0, {"rr_ratio": 0, "reason": "数据缺失"}
 
-    # 向上空间：到白线的距离
-    reward = max(white_line * 1.02 - close, 0)  # 白线+2%作为目标
-    # 向下风险：到支撑位的距离
-    if support and support > 0:
-        risk = max(close - support, close * 0.03)  # 最小风险3%
-    else:
-        risk = close * 0.03  # 默认3%止损
+    # 止盈空间：砖型图标准+8%
+    reward_pct = 0.08
+    reward = close * reward_pct
 
+    # 止损空间：到支撑位的距离
+    stop_price = support if (support and support > 0) else close * 0.97
+    # 如果黄线存在且更高，用黄线作为止损参考
+    if not pd.isna(yellow_line) and yellow_line > 0:
+        stop_price = max(stop_price, yellow_line * 0.98)  # 黄线-2%容差
+
+    risk = max(close - stop_price, close * 0.03)  # 最小风险3%
     rr_ratio = reward / risk if risk > 0 else 0
 
-    if rr_ratio >= 3.0:
+    # 砖型图信号基础RR分（信号质量本身就代表好的RR位置）
+    base_rr = 1.0 if brick_signal else 0.0
+    
+    if rr_ratio >= 2.5:
         score = 3.0
     elif rr_ratio >= 2.0:
-        score = 2.0
+        score = 2.5
     elif rr_ratio >= 1.5:
-        score = 1.0
+        score = 2.0
     else:
-        score = 0.0
+        score = base_rr  # 砖型图信号至少1分
 
-    details = {"rr_ratio": round(rr_ratio, 2), "reward": round(reward, 2),
-               "risk": round(risk, 2), "support": support}
+    details = {"rr_ratio": round(rr_ratio, 2), "reward_pct": f"{reward_pct*100:.0f}%",
+               "risk_pct": round(risk/close*100, 2), "support": round(stop_price, 2)}
     return score, details
 
 
@@ -335,7 +344,7 @@ def score_candidate(
         ScoreResult 对象
     """
     # 1. RR比评分
-    rr_score, rr_details = score_rr(close, white_line, yellow_line, support)
+    rr_score, rr_details = score_rr(close, white_line, yellow_line, support, brick_signal)
 
     # 2. 板块层级评分
     sector_score, sector_details = score_sector(industry)
