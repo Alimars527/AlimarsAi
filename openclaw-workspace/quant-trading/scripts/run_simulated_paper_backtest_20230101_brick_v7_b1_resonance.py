@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 """
 10w 模拟实盘节奏回放（砖型图 V7 B1共振版）
-- 策略：BRICK_V5_T1（基于V4 + 额外4个Tier1行业硬黑名单）
+- 策略：BRICK_V7_B1_RESONANCE（砖型图主信号 + B1共振过滤器）
 - 环境：OMAV 极致空头不新开仓；转弱降频
 - 执行：
   * Brick: 买入价=min(C*0.995, next_open*0.99)，持有1天后卖出
 - 资金：10w 起步，A股100股一手
-- V5变更：在V4的10个排除行业基础上，增加4个Tier1亏损行业
-  * 化纤(4笔全亏, -11,447), 装修装饰(3笔, -8,706)
-  * 其他商业(3笔全亏, -8,643), 焦炭加工(2笔全亏, -5,680)
-  * 月度分析确认这些行业不是板块轮动主力，排除不影响轮动覆盖
+- V7变更：基于V5-T1，砖型图信号必须同时满足B1实验版条件才入场
+  * B1条件：J<=13 + 市值>=50亿 + 阳阴量比 + 白黄线位置 + 放量阳线
 
 输出：
-- outputs/sim_replay_20230101_brick_v5_tier1_summary.json
-- outputs/sim_replay_20230101_brick_v5_tier1_trades.csv
-- outputs/sim_replay_20230101_brick_v5_tier1_nav.csv
+- outputs/sim_replay_20230101_brick_v7_b1_resonance_summary.json
+- outputs/sim_replay_20230101_brick_v7_b1_resonance_trades.csv
+- outputs/sim_replay_20230101_brick_v7_b1_resonance_nav.csv
 """
 
 from __future__ import annotations
@@ -406,11 +404,11 @@ def main():
                         and z.iloc[idx] >= z.iloc[idx - 1]
                     )
 
-                b1 = False
-                if warn_overlap_only and not brick:
+                # V7: brick AND b1 resonance — both must be True
+                if warn_overlap_only and not (brick and b1):
                     continue
 
-                if not brick:
+                if not (brick and b1):
                     continue
 
                 sigs.append(
@@ -514,13 +512,13 @@ def main():
         "total_return_pct": round(total_return, 2),
         "trade_count": int(len(trades_df)),
         "win_rate_pct": round(float((trades_df["net_pnl"] > 0).mean() * 100), 2) if not trades_df.empty else 0.0,
-        "nav_path": str(OUT / "sim_replay_20230101_brick_v5_tier1_nav.csv"),
-        "trades_path": str(OUT / "sim_replay_20230101_brick_v5_tier1_trades.csv"),
+        "nav_path": str(OUT / "sim_replay_20230101_brick_v7_b1_resonance_nav.csv"),
+        "trades_path": str(OUT / "sim_replay_20230101_brick_v7_b1_resonance_trades.csv"),
     }
 
-    nav.to_csv(OUT / "sim_replay_20230101_brick_v5_tier1_nav.csv", index=False, encoding="utf-8-sig")
-    trades_df.to_csv(OUT / "sim_replay_20230101_brick_v5_tier1_trades.csv", index=False, encoding="utf-8-sig")
-    (OUT / "sim_replay_20230101_brick_v5_tier1_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    nav.to_csv(OUT / "sim_replay_20230101_brick_v7_b1_resonance_nav.csv", index=False, encoding="utf-8-sig")
+    trades_df.to_csv(OUT / "sim_replay_20230101_brick_v7_b1_resonance_trades.csv", index=False, encoding="utf-8-sig")
+    (OUT / "sim_replay_20230101_brick_v7_b1_resonance_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
