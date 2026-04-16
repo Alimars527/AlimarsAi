@@ -6,7 +6,7 @@
 - 执行：
   * Brick: 买入价=min(C*0.995, next_open*0.99)，持有1天后卖出
 - 资金：10w 起步，A股100股一手
-- V7变更：基于V5-T1，砖型图信号必须同时满足B1实验版条件才入场
+- V7变更：基于V5-T1，砖型图信号正常交易；当brick+b1共振时加大仓位（预算翻倍）
   * B1条件：J<=13 + 市值>=50亿 + 阳阴量比 + 白黄线位置 + 放量阳线
 
 输出：
@@ -404,11 +404,11 @@ def main():
                         and z.iloc[idx] >= z.iloc[idx - 1]
                     )
 
-                # V7: brick AND b1 resonance — both must be True
-                if warn_overlap_only and not (brick and b1):
+                # V7: brick为主信号，b1共振时重仓
+                if warn_overlap_only and not brick:
                     continue
 
-                if not (brick and b1):
+                if not brick:
                     continue
 
                 sigs.append(
@@ -442,7 +442,7 @@ def main():
                 if opened >= can_open:
                     break
 
-                strategy = "BRICK_V5_T1"
+                strategy = "BRICK_V7_RESONANCE" if (s["b1"] and s["brick"]) else "BRICK_V7_NORMAL"
                 buy_price = min(s["signal_close"] * 0.995, s["next_open"] * 0.99)
                 hold_days = 1
 
@@ -450,9 +450,10 @@ def main():
                 if s["next_low"] > buy_price:
                     continue
 
-                # 单笔等权
+                # V7: brick+b1共振时预算翻倍（重仓）
+                resonance = s["b1"] and s["brick"]
                 slots_left = max(1, can_open - opened)
-                budget = cash / slots_left
+                budget = cash / slots_left * (2.0 if resonance else 1.0)
                 shares = int(budget // buy_price // LOT_SIZE) * LOT_SIZE
                 if shares <= 0:
                     continue
