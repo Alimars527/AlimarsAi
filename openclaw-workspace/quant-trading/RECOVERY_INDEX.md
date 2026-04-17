@@ -106,7 +106,8 @@
 4. 再读：`docs/DOCS_INDEX.md`
 5. 再读：`outputs/OUTPUTS_INDEX.md`
 6. 再读：`reports/daily/`（最近2天日报）
-7. 如需看证据，读对应 `outputs/*summary.json`
+7. 再读：**`reports/obsidian_reviews/README.md`**（全部快捷指令口令参考）
+8. 如需看证据，读对应 `outputs/*summary.json`
 
 ---
 

@@ -32,6 +32,7 @@
 7. `reports/daily/` — 最新日报（看最近2天即可）
 8. `config/holdings.yaml` — 当前持仓
 9. `config/simulated_portfolio.yaml` — 模拟实盘状态
+10. **`reports/obsidian_reviews/README.md`** — 全部快捷指令汇总（@数据更新、@创建复盘模板、@开始复盘、@活跃市值、@候选票推荐、@模拟实盘、@历史回测、@备份），是日常操作的完整口令参考
 
 ---
 
