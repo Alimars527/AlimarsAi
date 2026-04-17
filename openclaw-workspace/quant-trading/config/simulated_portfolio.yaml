@@ -1,19 +1,28 @@
 meta:
   start_date: '2026-04-15'
   initial_capital: 50000
-  strategy: V5-T1砖型图回测逻辑 (持1天T+1卖出)
+  strategy: BaseLine组合版 (砖型图+止损+B1+止盈止损+回撤止损v5)
   rules:
     max_positions: 3
     max_single_pct: 50
-    buy_price: 'min(信号日收盘×0.995, 次日开盘×0.99)'
-    sell_rule: '固定持有1天后收盘卖出'
-    hold_days: 1
-    position_sizing: '等权开仓 (cash / slots)'
+    # 买入规则
+    buy_price_brick: 'min(信号日收盘×0.995, 次日开盘×0.99)'
+    buy_price_b1: 'min(信号日收盘×0.993, 次日开盘×0.988)'
+    position_sizing: '等权开仓 (cash / slots), avg5(1,2]纯B1降权budget×0.5'
     omav_control: 'bear不开仓, warn限1只, 正常最多3只'
     fees: '佣金万0.86(最低5元), 印花税万5(仅卖出)'
     excluded_industries: '航空/电气设备/旅游服务/黄金/全国地产/轻工机械/农药化肥/石油贸易/矿物制品/专用机械/化纤/装修装饰/其他商业/焦炭加工'
-    signal_source: 'V5-T1砖型图信号 (rotation_map+绿砖递减翻红+白黄线排列)'
+    signal_source: '砖型图V3旋转图信号 + B1封板信号 (combo)'
     sorting: '按J值排序, 低J优先'
+    # 卖出规则 - 砖型图
+    brick_sell: '持1天, 次日收盘卖出'
+    # 卖出规则 - B1 (按优先级)
+    b1_tp2: '+20%全走 (优先级最高)'
+    b1_tp1: '+10%卖半仓, 同时设置回撤止损线=TP1当天最低价×0.93'
+    b1_trailing_sl: 'TP1后收盘价跌破回撤止损线→全走'
+    b1_yellow_sl: '收盘价跌破黄线→全走'
+    b1_max_hold: '最多持10天, 到期收盘卖出'
+    b1_hold_days: 10
 portfolio:
   current_cash: 3832.29
   holdings:
@@ -24,9 +33,12 @@ portfolio:
     buy_date: '2026-04-16'
     buy_commission: 5.00
     total_cost: 46166.00
+    strategy: brick
     source: 4/15候选Top1 (回测等权逻辑)
     industry: 通信设备
-    notes: OMAV弱市限1只slot, 等权投入900股
+    tp1_done: false
+    trailing_stop_price: 0.0
+    notes: OMAV弱市限1只slot, 等权投入900股, 砖型图持1天4/17收盘卖
 transactions:
 - date: '2026-04-16'
   type: buy
@@ -37,6 +49,7 @@ transactions:
   amount: 46161.00
   commission: 5.00
   total_cost: 46166.00
+  strategy: brick
   reason: 4/15候选Top1, 等权1个slot, 买入价=min(52.13×0.995, 51.81×0.99)=51.29
   signal_close: 52.13
   next_open: 51.81
@@ -62,6 +75,7 @@ daily_log:
     cost: 51.29
     pnl: +1665.00
     pnl_pct: +3.61%
+    strategy: brick
   pnl: +1658.29
   pnl_pct: +3.32%
   trades:
@@ -70,6 +84,7 @@ daily_log:
     name: 亨通光电
     shares: 900
     price: 51.29
+    strategy: brick
     reason: 4/15候选Top1, OMAV弱市限1只, 等权全投900股
   skipped:
   - code: 002082.SZ
@@ -79,6 +94,6 @@ daily_log:
     name: 烽火通信
     reason: OMAV<0弱市限仓1只, 已满
   watch_for_tomorrow:
-  - '亨通光电(600487) — 持1天规则, 4/17收盘卖出'
+  - '亨通光电(600487) — 砖型图持1天规则, 4/17收盘卖出'
   - '待4/17盘后扫描新候选票'
-  notes: OMAV=-0.07弱市限1只, 等权投入900股@51.29
+  notes: OMAV=-0.07弱市限1只, 等权投入900股@51.29, BaseLine组合版规则

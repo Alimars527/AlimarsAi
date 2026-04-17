@@ -66,6 +66,7 @@ class Position:
     initial_shares: int = 0
     tp1_done: bool = False
     tp2_done: bool = False
+    trailing_stop_price: float = 0.0  # TP1当天最低价-7%回撤止损线
 
 
 def _commission(amount: float) -> float:
@@ -208,6 +209,7 @@ def main():
     # 统计止盈止损触发次数
     tp1_count = 0
     tp2_count = 0
+    trailing_sl_count = 0  # TP1当天最低价-7%回撤止损计数
     yellow_sl_count = 0
     maxhold_count = 0
 
@@ -310,9 +312,33 @@ def main():
                 tp1_count += 1
                 p.shares -= sell_shares
                 p.tp1_done = True
+                # 设置TP1当天最低价-7%回撤止损线
+                low = float(row["low"])
+                p.trailing_stop_price = low * (1 - 0.07)
                 # 如果剩余0股, 就结束
                 if p.shares <= 0:
                     continue
+
+            # TP1后回撤止损: 收盘价跌破TP1当天最低价-7%
+            if p.tp1_done and p.trailing_stop_price > 0 and close <= p.trailing_stop_price:
+                sell_price = close
+                fee = _sell_fee(sell_price, p.shares)
+                proceeds = sell_price * p.shares - fee
+                cash += proceeds
+                trades.append({
+                    "code": p.code, "name": p.name, "industry": p.industry,
+                    "strategy": p.strategy,
+                    "buy_date": p.buy_date, "sell_date": td,
+                    "buy_price": round(p.buy_price, 4),
+                    "sell_price": round(sell_price, 4),
+                    "shares": p.shares,
+                    "gross_pnl": round((sell_price - p.buy_price) * p.shares, 4),
+                    "fees": round(_buy_fee(p.buy_price, p.initial_shares) + fee, 4),
+                    "net_pnl": round(proceeds - p.buy_price * p.shares - _buy_fee(p.buy_price, p.initial_shares), 4),
+                    "exit_reason": "trailing_sl",
+                })
+                trailing_sl_count += 1
+                continue
 
             # 黄线止损: 收盘价跌破黄线
             if B1_YELLOW_SL and pd.notna(yellow) and close < yellow:
@@ -588,6 +614,7 @@ def main():
         "tp_sl_counts": {
             "tp1_partial": tp1_count,
             "tp2_full": tp2_count,
+            "trailing_sl": trailing_sl_count,
             "yellow_sl": yellow_sl_count,
             "max_hold": maxhold_count,
         },
