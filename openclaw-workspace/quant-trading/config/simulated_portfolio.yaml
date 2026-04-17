@@ -1,99 +1,214 @@
 meta:
   start_date: '2026-04-15'
   initial_capital: 50000
-  strategy: BaseLine组合版 (砖型图+止损+B1+止盈止损+回撤止损v5)
+  strategy: BaseLine组合版 (砖型图+B1+止盈止损+回撤止损v5)
   rules:
     max_positions: 3
     max_single_pct: 50
-    # 买入规则
     buy_price_brick: 'min(信号日收盘×0.995, 次日开盘×0.99)'
     buy_price_b1: 'min(信号日收盘×0.993, 次日开盘×0.988)'
     position_sizing: '等权开仓 (cash / slots), avg5(1,2]纯B1降权budget×0.5'
-    omav_control: 'bear不开仓, warn限1只, 正常最多3只'
+    omav_control: 'bear不开仓, warn限1只(仅共振), 正常最多3只'
     fees: '佣金万0.86(最低5元), 印花税万5(仅卖出)'
     excluded_industries: '航空/电气设备/旅游服务/黄金/全国地产/轻工机械/农药化肥/石油贸易/矿物制品/专用机械/化纤/装修装饰/其他商业/焦炭加工'
     signal_source: '砖型图V3旋转图信号 + B1封板信号 (combo)'
-    sorting: '按J值排序, 低J优先'
-    # 卖出规则 - 砖型图
+    sorting: '共振>砖型图>纯B1, 同类按J值排序'
     brick_sell: '持1天, 次日收盘卖出'
-    # 卖出规则 - B1 (按优先级)
-    b1_tp2: '+20%全走 (优先级最高)'
-    b1_tp1: '+10%卖半仓, 同时设置回撤止损线=TP1当天最低价×0.93'
-    b1_trailing_sl: 'TP1后收盘价跌破回撤止损线→全走'
-    b1_yellow_sl: '收盘价跌破黄线→全走'
-    b1_max_hold: '最多持10天, 到期收盘卖出'
-    b1_hold_days: 10
+    b1_tp2: '+20%全走'
+    b1_tp1: '+10%卖半仓, 设回撤止损线=TP1当天最低价×0.93'
+    b1_trailing_sl: 'TP1后收盘≤止损线→全走'
+    b1_yellow_sl: '收盘<黄线→全走'
+    b1_max_hold: '10天到期收盘卖出'
 portfolio:
-  current_cash: 3832.29
+  current_cash: 2354.00
   holdings:
   - ts_code: 600487.SH
     name: 亨通光电
-    shares: 900
-    buy_price: 51.29
+    shares: 300
+    initial_shares: 300
+    buy_price: 51.188
     buy_date: '2026-04-16'
     buy_commission: 5.00
-    total_cost: 46166.00
-    strategy: brick
-    source: 4/15候选Top1 (回测等权逻辑)
+    total_cost: 15361.40
+    strategy: B1_EXPERIMENTAL
+    source: 4/16候选Top1 (RR=6070, J值排序)
     industry: 通信设备
     tp1_done: false
+    tp2_done: false
     trailing_stop_price: 0.0
-    notes: OMAV弱市限1只slot, 等权投入900股, 砖型图持1天4/17收盘卖
+    hold_days: 10
+    notes: B1信号, OMAV强势正常开仓, 等权1/3 slot
+  - ts_code: 000890.SZ
+    name: 法尔胜
+    shares: 1300
+    initial_shares: 1300
+    buy_price: 12.103
+    buy_date: '2026-04-16'
+    buy_commission: 5.00
+    total_cost: 15738.90
+    strategy: B1_EXPERIMENTAL
+    source: 4/16候选Top2 (RR=3210, B1_EXPERIMENTAL_V1信号)
+    industry: 环境保护
+    tp1_done: false
+    tp2_done: false
+    trailing_stop_price: 0.0
+    hold_days: 10
+    notes: B1信号, 等权1/3 slot
+  - ts_code: 603588.SH
+    name: 高能环境
+    shares: 1100
+    initial_shares: 1100
+    buy_price: 15.037
+    buy_date: '2026-04-16'
+    buy_commission: 5.00
+    total_cost: 16545.70
+    strategy: B1_EXPERIMENTAL
+    source: 4/16候选Top3 (RR=2570)
+    industry: 环境保护
+    tp1_done: false
+    tp2_done: false
+    trailing_stop_price: 0.0
+    hold_days: 10
+    notes: B1信号, 等权1/3 slot
 transactions:
 - date: '2026-04-16'
   type: buy
   ts_code: 600487.SH
   name: 亨通光电
-  shares: 900
-  price: 51.29
-  amount: 46161.00
+  shares: 300
+  price: 51.188
+  amount: 15356.40
   commission: 5.00
-  total_cost: 46166.00
-  strategy: brick
-  reason: 4/15候选Top1, 等权1个slot, 买入价=min(52.13×0.995, 51.81×0.99)=51.29
+  total_cost: 15361.40
+  strategy: B1_EXPERIMENTAL
+  reason: 4/16候选Top1, OMAV=2.01强势, 等权1/3
   signal_close: 52.13
   next_open: 51.81
   next_low: 50.89
-  omav: -0.07
+  buy_price_formula: min(52.13*0.993, 51.81*0.988)=51.188
+- date: '2026-04-16'
+  type: buy
+  ts_code: 000890.SZ
+  name: 法尔胜
+  shares: 1300
+  price: 12.103
+  amount: 15733.90
+  commission: 5.00
+  total_cost: 15738.90
+  strategy: B1_EXPERIMENTAL
+  reason: 4/16候选Top2, OMAV强势, 等权1/3
+  signal_close: 12.76
+  next_open: 12.25
+  next_low: 12.00
+  buy_price_formula: min(12.76*0.993, 12.25*0.988)=12.103
+- date: '2026-04-16'
+  type: buy
+  ts_code: 603588.SH
+  name: 高能环境
+  shares: 1100
+  price: 15.037
+  amount: 16540.70
+  commission: 5.00
+  total_cost: 16545.70
+  strategy: B1_EXPERIMENTAL
+  reason: 4/16候选Top3, OMAV强势, 等权1/3
+  signal_close: 15.20
+  next_open: 15.22
+  next_low: 15.03
+  buy_price_formula: min(15.20*0.993, 15.22*0.988)=15.037
 daily_log:
 - date: '2026-04-15'
-  action: 初始化模拟实盘
-  nav: 50000.0
-  cash: 50000.0
+  action: 初始化
+  nav: 50000.00
+  cash: 50000.00
   holdings_value: 0
-  notes: 起始资金5万, 等待4/16执行4/15候选票买入
+  notes: 起始5万, OMAV=-0.07弱市, 候选全是B1无砖型图共振, warn模式仅共振→不买
 - date: '2026-04-16'
-  action: 日报-第1个交易日
-  nav: 51658.29
-  cash: 3832.29
-  holdings_value: 47826.00
+  action: 买入3只B1候选
+  nav: 52303.10
+  cash: 2354.00
+  holdings_value: 49949.10
   holdings:
   - code: 600487.SH
     name: 亨通光电
-    shares: 900
+    shares: 300
     close: 53.14
-    cost: 51.29
-    pnl: +1665.00
-    pnl_pct: +3.61%
-    strategy: brick
-  pnl: +1658.29
-  pnl_pct: +3.32%
+    cost: 51.188
+    pnl: +585.60
+    pnl_pct: +3.81%
+    strategy: B1
+  - code: 000890.SZ
+    name: 法尔胜
+    shares: 1300
+    close: 12.39
+    cost: 12.103
+    pnl: +373.10
+    pnl_pct: +2.36%
+    strategy: B1
+  - code: 603588.SH
+    name: 高能环境
+    shares: 1100
+    close: 15.70
+    cost: 15.037
+    pnl: +729.30
+    strategy: B1
+  pnl: +2303.10
+  pnl_pct: +4.61%
   trades:
   - type: buy
     code: 600487.SH
     name: 亨通光电
-    shares: 900
-    price: 51.29
-    strategy: brick
-    reason: 4/15候选Top1, OMAV弱市限1只, 等权全投900股
-  skipped:
-  - code: 002082.SZ
-    name: 万邦德
-    reason: OMAV<0弱市限仓1只, 已满
-  - code: 600498.SH
-    name: 烽火通信
-    reason: OMAV<0弱市限仓1只, 已满
+    shares: 300
+    price: 51.188
+    strategy: B1
+  - type: buy
+    code: 000890.SZ
+    name: 法尔胜
+    shares: 1300
+    price: 12.103
+    strategy: B1
+  - type: buy
+    code: 603588.SH
+    name: 高能环境
+    shares: 1100
+    price: 15.037
+    strategy: B1
+  notes: OMAV=2.01强势, 3只B1候选全部成交, B1持最多10天
+- date: '2026-04-17'
+  action: 继续持有
+  nav: 52441.00
+  cash: 2354.00
+  holdings_value: 50087.00
+  holdings:
+  - code: 600487.SH
+    name: 亨通光电
+    shares: 300
+    close: 55.65
+    cost: 51.188
+    pnl: +1338.60
+    pnl_pct: +8.72%
+    strategy: B1
+    tp1_check: 最高56.10 < TP1(56.307) → 未触发
+  - code: 000890.SZ
+    name: 法尔胜
+    shares: 1300
+    close: 12.41
+    cost: 12.103
+    pnl: +399.10
+    pnl_pct: +2.54%
+    strategy: B1
+  - code: 603588.SH
+    name: 高能环境
+    shares: 1100
+    close: 15.69
+    cost: 15.037
+    pnl: +718.30
+    pnl_pct: +4.34%
+    strategy: B1
+  pnl: +2441.00
+  pnl_pct: +4.88%
+  notes: 3只B1均持第1天, TP1/TP2/止损均未触发, 继续持有. 亨通最高56.10差0.2元就到TP1(56.307)
   watch_for_tomorrow:
-  - '亨通光电(600487) — 砖型图持1天规则, 4/17收盘卖出'
-  - '待4/17盘后扫描新候选票'
-  notes: OMAV=-0.07弱市限1只, 等权投入900股@51.29, BaseLine组合版规则
+  - '亨通光电: 再涨0.3元即触发TP1(+10%卖半仓), 关注明日能否突破56.307'
+  - '法尔胜/高能环境: 远离止盈止损线, 正常持有'
+  - '待4/18盘后扫描新候选票(已满仓3只, 需先卖才能买新的)'
