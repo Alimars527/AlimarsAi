@@ -1,5 +1,0 @@
-﻿variant,variant_desc,event_count,win_rate,avg_return,median_return,trimmed_mean_10,trimmed_mean_20,max_loss,worst_5pct_mean,signal_days
-B1_BASE_NEW,新本体：去掉回调幅度<=15%,15061,51.01,0.3671,0.0934,0.1427,0.1008,-36.2589,-9.9258,604
-B1_BASE_NEW_PLUS_DAYS,新本体 + 回调时间<=15天,14542,51.12,0.3713,0.1038,0.1488,0.1094,-36.2589,-9.9315,603
-B1_BASE_NEW_PLUS_VOLUME,新本体 + 量能收束B,12698,51.19,0.3704,0.1101,0.1484,0.1064,-36.2589,-9.8538,587
-B1_BASE_NEW_PLUS_DAYS_VOLUME,新本体 + 回调时间<=15天 + 量能收束B,12266,51.39,0.383,0.1282,0.1598,0.12,-36.2589,-9.8405,585

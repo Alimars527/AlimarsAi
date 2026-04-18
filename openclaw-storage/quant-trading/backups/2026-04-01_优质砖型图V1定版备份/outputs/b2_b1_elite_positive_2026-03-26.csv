@@ -1,7 +1,0 @@
-﻿code,name,industry,avg_return,pct_chg,b1_strength,b2_strength,perfect_b1,standard_b1,weak_b1,tactic_buckets
-001203.SZ,大中矿业,普钢,15.822784810126578,5.3333,6,4,False,False,True,"['theme_single_pin_low20', 'theme_b2_attack', 'theme_day_b1_weak']"
-002756.SZ,永兴材料,小金属,12.889610389610407,5.8056,6,4,False,False,True,"['theme_b2_attack', 'theme_day_b1_weak']"
-603876.SH,鼎胜新材,铝,8.173562058526752,5.0901,5,4,False,False,True,"['theme_b2_attack', 'theme_day_b1_weak']"
-000973.SZ,佛塑科技,塑料,5.02225047679592,5.0067,5,4,False,False,True,"['theme_b2_attack', 'theme_day_b1_weak']"
-603929.SH,亚翔集成,装修装饰,3.3852476746701443,5.3675,5,4,False,False,True,"['theme_b2_attack', 'theme_day_b1_weak']"
-688325.SH,赛微微电,半导体,2.230483271375472,4.7263,5,4,False,False,True,"['theme_b2_attack', 'theme_day_b1_weak']"

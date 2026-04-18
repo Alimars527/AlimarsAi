@@ -1,1 +1,0 @@
-{'status': 'ok', 'summary': {'sample_count': 0, 'avg_return': None, 'avg_win_rate': None, 'avg_exit_return': None, 'avg_exit_win_rate': None, 'industries': []}, 'by_industry': [], 'top': [], 'bottom': []}

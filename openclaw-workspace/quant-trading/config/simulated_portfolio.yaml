@@ -4,6 +4,7 @@ meta:
   strategy: BaseLine组合版 (砖型图+B1+止盈止损+回撤止损v5)
   rules:
     max_positions: 3
+    observe_note: '法尔胜/高能环境因蜡烛图分析判断走势不佳（法尔胜：急跌后低位横盘缺方向/高能环境：看跌吞没+弱反弹+十字星乏力），转为观察仓。观察仓不操作买卖，仅跟踪理论盈亏。若后续出现新的优质信号，仍可新开操作仓。'
     max_single_pct: 50
     buy_price_brick: 'min(信号日收盘×0.995, 次日开盘×0.99)'
     buy_price_b1: 'min(信号日收盘×0.993, 次日开盘×0.988)'
@@ -37,7 +38,8 @@ portfolio:
     tp2_done: false
     trailing_stop_price: 0.0
     hold_days: 10
-    notes: B1信号, OMAV强势正常开仓, 等权1/3 slot
+    mode: active
+    notes: B1信号, OMAV强势正常开仓, 用户指定唯一操作标的
   - ts_code: 000890.SZ
     name: 法尔胜
     shares: 1300
@@ -53,7 +55,8 @@ portfolio:
     tp2_done: false
     trailing_stop_price: 0.0
     hold_days: 10
-    notes: B1信号, 等权1/3 slot
+    mode: observe
+    notes: 观察仓，不操作买入卖出，仅跟踪理论盈亏
   - ts_code: 603588.SH
     name: 高能环境
     shares: 1100
@@ -69,7 +72,8 @@ portfolio:
     tp2_done: false
     trailing_stop_price: 0.0
     hold_days: 10
-    notes: B1信号, 等权1/3 slot
+    mode: observe
+    notes: 观察仓，不操作买入卖出，仅跟踪理论盈亏
 transactions:
 - date: '2026-04-16'
   type: buy
@@ -116,6 +120,16 @@ transactions:
   next_open: 15.22
   next_low: 15.03
   buy_price_formula: min(15.20*0.993, 15.22*0.988)=15.037
+- date: '2026-04-18'
+  type: mode_change
+  ts_code: 000890.SZ
+  name: 法尔胜
+  reason: 用户指定法尔胜转为观察仓，不再操作
+- date: '2026-04-18'
+  type: mode_change
+  ts_code: 603588.SH
+  name: 高能环境
+  reason: 用户指定高能环境转为观察仓，不再操作
 daily_log:
 - date: '2026-04-15'
   action: 初始化
@@ -212,3 +226,21 @@ daily_log:
   - '亨通光电: 再涨0.3元即触发TP1(+10%卖半仓), 关注明日能否突破56.307'
   - '法尔胜/高能环境: 远离止盈止损线, 正常持有'
   - '待4/18盘后扫描新候选票(已满仓3只, 需先卖才能买新的)'
+- date: '2026-04-18'
+  action: 模式调整
+  nav: 52441.00
+  cash: 2354.00
+  holdings_value: 50087.00
+  notes: 用户决定只操作亨通光电，法尔胜和高能环境转为观察仓(仅跟踪理论盈亏，不做买卖操作)。释放2个操作仓位，下个交易日可新开仓最多2只。
+  mode_changes:
+  - code: 000890.SZ
+    name: 法尔胜
+    from: active
+    to: observe
+  - code: 603588.SH
+    name: 高能环境
+    from: active
+    to: observe
+  active_slots: 1
+  observe_slots: 2
+  can_open_next_day: 2
