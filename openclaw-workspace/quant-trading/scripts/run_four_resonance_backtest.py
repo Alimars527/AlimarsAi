@@ -141,34 +141,26 @@ def check_buy_signal(row) -> bool:
 
 
 def check_sell_signal(row) -> bool:
-    """卖出共振: 四背离全满足"""
+    """卖出(宽松版): 任一系统翻空即卖
+    
+    买入时四个系统都看多，现在只要有一个明显翻空就离场：
+    - MACD死叉(DIF<DEA) → 动能转弱
+    - KDJ死叉(K<D) → 短线转弱
+    """
     try:
-        # 均线背离: MA5<MA10<MA20<MA60
-        ma5, ma10, ma20, ma60 = row['ma5'], row['ma10'], row['ma20'], row['ma60']
-        if pd.isna(ma5) or pd.isna(ma10) or pd.isna(ma20) or pd.isna(ma60):
-            return False
-        ma_bad = ma5 < ma10 < ma20 < ma60
+        # MACD死叉: DIF<DEA (不要求DIF<0，死叉就够)
+        dif = row['macd_dif']
+        dea = row['macd_dea']
+        if pd.notna(dif) and pd.notna(dea) and dif < dea:
+            return True
 
-        # 量能萎缩: VOL<VOL5<VOL10
-        vol = row['vol']
-        vol5, vol10 = row['vol5'], row['vol10']
-        if pd.isna(vol5) or pd.isna(vol10):
-            return False
-        vol_bad = vol < vol5 < vol10
+        # KDJ死叉: K<D (不要求J<50)
+        k = row['kdj_k']
+        d = row['kdj_d']
+        if pd.notna(k) and pd.notna(d) and k < d:
+            return True
 
-        # MACD背离: DIF<DEA 且 DIF<0
-        dif, dea = row['macd_dif'], row['macd_dea']
-        if pd.isna(dif) or pd.isna(dea):
-            return False
-        macd_bad = dif < dea and dif < 0
-
-        # KDJ背离: K<D 且 J<50
-        k, d, j = row['kdj_k'], row['kdj_d'], row['kdj_j']
-        if pd.isna(k) or pd.isna(d) or pd.isna(j):
-            return False
-        kdj_bad = k < d and j < 50
-
-        return ma_bad and vol_bad and macd_bad and kdj_bad
+        return False
     except Exception:
         return False
 
