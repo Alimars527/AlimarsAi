@@ -51,7 +51,7 @@ STAMP_TAX_SELL = 0.0005
 MAX_POSITIONS = 3
 MAX_HOLD_DAYS = 30  # 安全阀：最多持有30个交易日
 
-VERSION_TAG = "four_resonance_v1_strict"
+VERSION_TAG = "four_resonance_v2_loose_sell"
 PROGRESS_PATH = OUT / f"sim_replay_{START_DATE}_{VERSION_TAG}_progress.json"
 
 
