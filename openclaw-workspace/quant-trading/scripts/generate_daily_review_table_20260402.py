@@ -147,15 +147,18 @@ def main():
             green = df['brick_formula_green'].fillna(False).astype(bool)
             brick_v3 = False
             if idx >= 4 and brick_v1:
-                omav_ok = False
-                if omav_row:
-                    rw = str(omav_row.get('omav_rotation_warning_flag', '')).lower() == 'true'
-                    br = str(omav_row.get('omav_bear_regime_flag', '')).lower() == 'true'
-                    omav_ok = not rw and not br
+                # 与回测引擎一致: 无OMAV数据时默认不拦截(bear=False, warn=False)
+                rw = str(omav_row.get('omav_rotation_warning_flag', 'false')).lower() == 'true' if omav_row else False
+                br = str(omav_row.get('omav_bear_regime_flag', 'false')).lower() == 'true' if omav_row else False
+                omav_ok = not rw and not br
                 rotation_ok = rotation_map.get((TRADE_DATE, row.industry), False)
+                high_v = float(pd.to_numeric(latest['high'], errors='coerce'))
+                white_v = float(pd.to_numeric(latest['white_line'], errors='coerce'))
+                yellow_v = float(pd.to_numeric(latest['yellow_line'], errors='coerce'))
                 brick_v3 = bool(
                     omav_ok and rotation_ok and
-                    latest['high'] >= latest['white_line'] and latest['white_line'] > latest['yellow_line'] and
+                    pd.notna(high_v) and pd.notna(white_v) and pd.notna(yellow_v) and
+                    high_v >= white_v and white_v > yellow_v and
                     green.iloc[idx-1] and green.iloc[idx-2] and green.iloc[idx-3] and green.iloc[idx-4] and
                     z.iloc[idx-4] > z.iloc[idx-3] > z.iloc[idx-2] > z.iloc[idx-1] and
                     z.iloc[idx] >= z.iloc[idx-1]
