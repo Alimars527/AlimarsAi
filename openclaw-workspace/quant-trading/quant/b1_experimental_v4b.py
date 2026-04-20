@@ -10,9 +10,13 @@ def _load_omav_avg5_prev(project_root, trade_date: str):
     if not p.exists():
         return None
     df = pd.read_csv(p, dtype={'trade_date': str}).sort_values('trade_date').reset_index(drop=True)
-    omav = safe_num(df.get('omav'))
-    if omav.isna().all() and 'omav_value' in df.columns:
-        omav = safe_num(df.get('omav_value'))
+    omav_col = df.get('omav')
+    if omav_col is not None and hasattr(omav_col, 'isna') and not omav_col.isna().all():
+        omav = omav_col
+    elif 'omav_value' in df.columns:
+        omav = df['omav_value']
+    else:
+        return None
     df['avg5_prev'] = omav.shift(1).rolling(5).mean()
     hit = df[df['trade_date'].astype(str) == str(trade_date)]
     if hit.empty:
