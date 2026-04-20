@@ -1,26 +1,18 @@
-updated_at: '2026-04-16T18:00:00+08:00'
+updated_at: '2026-04-20T17:00:00+08:00'
 holdings:
-- code: 002756.SZ
-  name: 永兴材料
-  cost: 71.77
-  quantity: 1
-- code: 002709.SZ
-  name: 天赐材料
-  cost: 46.39
-  quantity: 1
+- code: 002179.SZ
+  name: 中航光电
+  cost: 36.733
+  quantity: 4
+- code: 002378.SZ
+  name: 章源钨业
+  cost: 31.44
+  quantity: 2
+- code: 002639.SZ
+  name: 雪人集团
+  cost: 20.0
+  quantity: 5
 - code: 159545.SZ
   name: 恒生红利低波ETF易方达
   cost: 1.429
   quantity: 35000
-- code: 603127.SH
-  name: 昭衍新药
-  cost: 38.025
-  quantity: 2
-- code: 600549.SH
-  name: 厦门钨业
-  cost: 60.596
-  quantity: 2
-- code: 603685.SH
-  name: 晨丰科技
-  cost: 30.695
-  quantity: 2
