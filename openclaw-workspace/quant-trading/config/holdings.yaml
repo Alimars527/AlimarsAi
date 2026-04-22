@@ -1,18 +1,19 @@
-updated_at: '2026-04-20T17:00:00+08:00'
+updated_at: '2026-04-22T19:10:00+08:00'
 holdings:
-- code: 002179.SZ
-  name: 中航光电
-  cost: 36.733
-  quantity: 4
-- code: 002378.SZ
-  name: 章源钨业
-  cost: 31.44
-  quantity: 2
-- code: 002639.SZ
-  name: 雪人集团
-  cost: 20.0
-  quantity: 5
-- code: 159545.SZ
-  name: 恒生红利低波ETF易方达
-  cost: 1.429
-  quantity: 35000
+- code: 000600.SZ
+  name: 建投能源
+  cost: 9.47
+  quantity: 1300
+- code: 002380.SZ
+  name: 科远智慧
+  cost: 33.557
+  quantity: 300
+- code: 000973.SZ
+  name: 佛塑科技
+  cost: 18.255
+  quantity: 800
+- code: ETF_HKLOWVOL
+  name: 港股低波红利ETF摩根
+  cost: 1.681
+  quantity: 30000
+  note: ETF,无Tushare日线数据
