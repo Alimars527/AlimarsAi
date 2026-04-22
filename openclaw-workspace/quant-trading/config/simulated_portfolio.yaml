@@ -21,25 +21,8 @@ meta:
     b1_yellow_sl: 收盘<黄线→全走
     b1_max_hold: 10天到期收盘卖出
 portfolio:
-  current_cash: 7976.86
+  current_cash: 20250.84
   holdings:
-  - ts_code: 600487.SH
-    name: 亨通光电
-    shares: 200
-    initial_shares: 300
-    buy_price: 51.188
-    buy_date: '2026-04-16'
-    buy_commission: 5.0
-    total_cost: 15361.4
-    strategy: B1_EXPERIMENTAL
-    source: 4/16候选Top1 (RR=6070, J值排序)
-    industry: 通信设备
-    tp1_done: true
-    tp2_done: false
-    trailing_stop_price: 53.475
-    hold_days: 2
-    mode: active
-    notes: B1信号, OMAV强势正常开仓, 用户指定唯一操作标的
   - ts_code: 000890.SZ
     name: 法尔胜
     shares: 1300
@@ -143,6 +126,20 @@ transactions:
   reason: TP1触发(+10%), 最高60.99>=56.307
   trailing_stop_set: 53.475
   remaining_shares: 200
+- date: '2026-04-22'
+  type: sell_tp2
+  ts_code: 600487.SH
+  name: 亨通光电
+  shares: 200
+  price: 61.4256
+  amount: 12285.12
+  commission: 5.0
+  stamp_tax: 6.14
+  net_proceeds: 12273.98
+  reason: TP2触发(+20%全走), 最高65.78>=61.426
+  remaining_shares: 0
+  pnl_on_shares: 2047.52
+  pnl_pct: +19.97%
 daily_log:
 - date: '2026-04-15'
   action: 初始化
@@ -306,3 +303,81 @@ daily_log:
   watch_for_tomorrow:
   - '亨通光电: 剩200股, 止损线53.475, 收盘60.89远高于止损线, 继续持有看能否冲TP2(61.426)'
   - 无新候选, 释放1个操作仓(亨通剩200股占1个slot), 明日可开1只新仓
+- date: '2026-04-21'
+  action: 继续持有
+  nav: 53823.2
+  cash: 7976.86
+  holdings_value: 45846.34
+  holdings:
+  - code: 600487.SH
+    name: 亨通光电
+    shares: 200
+    close: 59.8
+    cost: 51.188
+    pnl: 1722.4
+    pnl_pct: +16.85%
+    strategy: B1
+    tp1_done: true
+    trailing_stop: 53.475
+    hold_days: 3
+  - code: 000890.SZ
+    name: 法尔胜
+    shares: 1300
+    close: 14.59
+    cost: 12.103
+    pnl: 3233.1
+    pnl_pct: +20.5%
+    strategy: B1
+    mode: observe
+  - code: 603588.SH
+    name: 高能环境
+    shares: 1100
+    close: 15.89
+    cost: 15.037
+    pnl: 938.3
+    pnl_pct: +5.7%
+    strategy: B1
+    mode: observe
+  pnl: 3823.2
+  pnl_pct: +7.65%
+  notes: 亨通光电hold_day3, TP2未触发(最高60.4<61.426), 回撤止损/黄线止损均未触发, 继续持有. 观察仓不操作.
+  watch_for_tomorrow:
+  - '亨通光电: TP2=61.426, 再涨0.8%即触发全走; 回撤止损53.475仍远'
+- date: '2026-04-22'
+  action: TP2全走亨通光电
+  nav: 57453.84
+  cash: 20250.84
+  holdings_value: 37203.0
+  holdings:
+  - code: 000890.SZ
+    name: 法尔胜
+    shares: 1300
+    close: 15.24
+    cost: 12.103
+    pnl: 4078.1
+    pnl_pct: +25.9%
+    strategy: B1
+    mode: observe
+  - code: 603588.SH
+    name: 高能环境
+    shares: 1100
+    close: 15.81
+    cost: 15.037
+    pnl: 850.3
+    pnl_pct: +5.1%
+    strategy: B1
+    mode: observe
+  pnl: 7453.84
+  pnl_pct: +14.91%
+  trades:
+  - type: sell_tp2
+    code: 600487.SH
+    name: 亨通光电
+    shares: 200
+    price: 61.4256
+    reason: TP2(+20%全走), 最高65.78>=61.426
+  notes: 亨通光电涨停板! 最高65.78触发TP2(61.426), 全部200股按61.426卖出. 操作仓已空仓, 现金20250.84. 观察仓法尔胜+25.9%/高能环境+5.1%不操作.
+  watch_for_tomorrow:
+  - 操作仓已空仓, 3个slot可用
+  - 明日扫描候选票, 按排序规则开仓
+  - 观察仓法尔胜涨幅可观, 但不操作
