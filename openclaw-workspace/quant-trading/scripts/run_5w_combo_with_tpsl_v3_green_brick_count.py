@@ -49,7 +49,7 @@ B1_TP1 = 0.10    # +10% 卖半仓
 B1_TP2 = 0.20    # +20% 全走
 B1_YELLOW_SL = True  # 启用黄线止损
 
-VERSION_TAG = "combo_v4b_with_tpsl"
+VERSION_TAG = "combo_v4b_with_tpsl_v3_green_cnt"
 PROGRESS_PATH = OUT / f"sim_replay_20230101_{VERSION_TAG}_progress.json"
 
 
