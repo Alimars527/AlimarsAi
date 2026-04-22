@@ -1,0 +1,40 @@
+{=== BaseLine 砖型图选股公式 (通达信条件选股) ===}
+{=== 对应脚本: brick_v3_strict.py ===}
+{=== 回测基准: +219.99%/585笔/50.6%WR ===}
+
+{========= 均线定义 =========}
+白线:=EMA(EMA(CLOSE,10),10);
+黄线:=(MA(CLOSE,14)+MA(CLOSE,28)+MA(CLOSE,57)+MA(CLOSE,114))/4;
+
+{========= 砖型图核心公式 =========}
+{与Python版brick_formula.py完全对应, 使用通达信内置SMA函数}
+HHV4:=HHV(HIGH,4);
+LLV4:=LLV(LOW,4);
+SPREAD:=IF(HHV4-LLV4=0,0.01,HHV4-LLV4);
+VAR1A:=(HHV4-CLOSE)/SPREAD*100-90;
+VAR2A:=SMA(VAR1A,4,1)+100;
+VAR3A:=(CLOSE-LLV4)/SPREAD*100;
+VAR4A:=SMA(VAR3A,6,1);
+VAR5A:=SMA(VAR4A,6,1)+100;
+VAR6A:=VAR5A-VAR2A;
+BRICK:=IF(VAR6A>4,VAR6A-4,0);
+
+{========= 翻红判断 =========}
+{翻红=今天BRICK>昨天 且 昨天没有翻红(昨天非上升)}
+今天红:=BRICK>REF(BRICK,1);
+昨天非红:=REF(BRICK,1)<=REF(BRICK,2);
+翻红:=今天红 AND 昨天非红;
+
+{========= 前4天全绿(BRICK连续递减4天) =========}
+绿4天:=REF(BRICK,1)<REF(BRICK,2) AND REF(BRICK,2)<REF(BRICK,3) AND REF(BRICK,3)<REF(BRICK,4) AND REF(BRICK,4)<REF(BRICK,5);
+
+{========= 今天回升(BRICK>=昨天) =========}
+回升:=BRICK>=REF(BRICK,1);
+
+{========= 均线条件: 最高价>=白线, 白线>黄线 =========}
+均线OK:=HIGH>=白线 AND 白线>黄线;
+
+{========= 最终选股 =========}
+{注意: 板块轮动Top5行业过滤无法在选股公式中实现}
+{需配合通达信"行业涨幅排名"功能手动筛选Top5板块内的个股}
+砖型图:翻红 AND 绿4天 AND 回升 AND 均线OK;

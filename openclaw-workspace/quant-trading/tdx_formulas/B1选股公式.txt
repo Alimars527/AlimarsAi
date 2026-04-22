@@ -1,0 +1,80 @@
+{=== BaseLine B1选股公式 (通达信条件选股) ===}
+{=== 对应脚本: b1_experimental_v4b.py ===}
+{=== 回测基准: +219.99%/585笔/50.6%WR ===}
+
+{========= 均线定义 =========}
+白线:=EMA(EMA(CLOSE,10),10);
+黄线:=(MA(CLOSE,14)+MA(CLOSE,28)+MA(CLOSE,57)+MA(CLOSE,114))/4;
+
+{========= 条件1: KDJ的J值<=13 =========}
+{注: 回测中J阈值按年份浮动(2023:-10, 2024:0, 2025:18, 2026:25)}
+{这里用固定值13, 可根据需要调整}
+RSV:=(CLOSE-LLV(LOW,9))/(HHV(HIGH,9)-LLV(LOW,9))*100;
+K1:=SMA(RSV,3,1);
+D1:=SMA(K1,3,1);
+J1:=3*K1-2*D1;
+J_OK:=J1<=13;
+
+{========= 条件2: 总市值>=50亿 =========}
+{FINANCE(1)=总股本(万股), 若版本不同请调整除数}
+{万股价值: CLOSE*FINANCE(1)/10000>=50}
+总市值:=CLOSE*FINANCE(1)/10000;
+MVOK:=总市值>=50;
+
+{========= 条件3: 近21天无高位放量阴线 =========}
+{高位=OPEN在21日开盘价的95%分位以上}
+{放量阴线=收盘<=开盘 且 收盘<昨收 且 量>=昨量*1.2}
+O高位:=OPEN>=(LLV(OPEN,21)+0.95*(HHV(OPEN,21)-LLV(OPEN,21)));
+放量阴线:=CLOSE<=OPEN AND CLOSE<REF(CLOSE,1) AND VOL>=1.2*REF(VOL,1);
+GOOD28:=COUNT(O高位 AND 放量阴线,21)=0;
+
+{========= 条件4: 放量阳线次数 =========}
+{放量阳线=量>昨量*1.95 且 收阳 且 量>40日均量}
+{近14天>=2次 或 近57天>=4次}
+AVG40:=MA(VOL,40);
+PLRY:=VOL>1.95*REF(VOL,1) AND CLOSE>OPEN AND VOL>AVG40;
+PLRY_CNT:=COUNT(PLRY,14)>=2 OR COUNT(PLRY,57)>=4;
+
+{========= 条件5: THREE_SUM>=4 =========}
+{放量阳首现+连续放量阳+缩量半跌 三者57天内合计>=4次}
+{真阴=收阴且收盘<=昨收, 真阳=收阳且收盘>=昨收}
+真阴:=CLOSE<OPEN AND CLOSE<=REF(CLOSE,1);
+PLRY昨:=REF(PLRY,1);
+PLRY首现:=PLRY AND NOT(PLRY昨);
+PLRY连续:=PLRY AND PLRY昨;
+昨非真阴:=NOT(REF(真阴,1));
+缩量半跌:=昨非真阴 AND CLOSE<REF(CLOSE,1) AND VOL<=0.5*REF(VOL,1);
+THREE_SUM:=COUNT(PLRY首现,57)+COUNT(PLRY连续,57)+COUNT(缩量半跌,57);
+THREE_OK:=THREE_SUM>=4;
+
+{========= 条件6: 28天最大量日非真阴 =========}
+{28天内出现最大成交量的那天不是真阴线}
+MAX28_OK:=COUNT(VOL=HHV(VOL,28) AND 真阴,28)=0;
+
+{========= 条件7: 阳阴比 =========}
+真阳:=CLOSE>OPEN AND CLOSE>=REF(CLOSE,1);
+阳量57:=SUM(IF(真阳,VOL,0),57);
+阴量57:=SUM(IF(真阴,VOL,0),57);
+阳量14:=SUM(IF(真阳,VOL,0),14);
+阴量14:=SUM(IF(真阴,VOL,0),14);
+阳阴比A:=阳量57>1.25*阴量57 AND 阳量14>2.25*阴量14;
+阳阴比B:=阳量14>2.25*阴量14;
+
+{========= 综合A1(两路取或) =========}
+{路径A: 需要阳阴比57+14日 且 THREE_SUM}
+{路径B: 只需14日阳阴比, 免THREE_SUM}
+路径A:=PLRY_CNT AND 阳阴比A AND J_OK AND MVOK AND GOOD28 AND THREE_OK AND MAX28_OK;
+路径B:=PLRY_CNT AND 阳阴比B AND J_OK AND MVOK AND GOOD28 AND MAX28_OK;
+A1:=路径A OR 路径B;
+
+{========= 均线条件 =========}
+均线OK:=白线>=黄线*0.985 AND CLOSE>=黄线*0.985;
+
+{========= V4B前两日过滤 =========}
+{前两天连续跌幅>1.5%则跳过}
+昨跌比:=REF(CLOSE,1)/REF(CLOSE,2);
+前跌比:=REF(CLOSE,2)/REF(CLOSE,3);
+前两日崩:=昨跌比<=0.985 AND 前跌比<=0.985;
+
+{========= 最终选股 =========}
+B1:均线OK AND A1 AND NOT(前两日崩);
