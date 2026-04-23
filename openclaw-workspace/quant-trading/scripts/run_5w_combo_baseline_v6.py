@@ -236,7 +236,15 @@ def main():
                 if held < p.hold_days:
                     remain_positions.append(p)
                     continue
-                sell_price = close
+                # 砖型图 -0.3% 止损线：最低价触及止损价则以止损价卖出
+                low = float(row["low"])
+                sl_price = p.buy_price * 0.997
+                if low <= sl_price:
+                    sell_price = sl_price
+                    exit_reason = "brick_sl"
+                else:
+                    sell_price = close
+                    exit_reason = "hold_expire"
                 fee = _sell_fee(sell_price, p.shares)
                 proceeds = sell_price * p.shares - fee
                 cash += proceeds
@@ -250,7 +258,7 @@ def main():
                     "gross_pnl": round((sell_price - p.buy_price) * p.shares, 4),
                     "fees": round(_buy_fee(p.buy_price, p.shares) + fee, 4),
                     "net_pnl": round(proceeds - p.buy_price * p.shares - _buy_fee(p.buy_price, p.shares), 4),
-                    "exit_reason": "hold_expire",
+                    "exit_reason": exit_reason,
                 })
                 continue
 
