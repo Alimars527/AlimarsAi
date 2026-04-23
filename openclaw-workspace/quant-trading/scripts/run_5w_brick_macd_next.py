@@ -28,11 +28,7 @@ sys.path.insert(0, str(ROOT))
 
 from quant.sim_replay_common import (
     build_prepared_universe,
-    load_omav,
     load_trade_calendar,
-    load_universe,
-    prepare_code_df,
-    safe_num,
 )
 
 DATA = ROOT / "data"
@@ -48,9 +44,8 @@ STAMP_TAX_SELL = 0.0005
 MAX_HOLD_DAYS = 15
 TP1 = 0.10
 TP2 = 0.20
-STOP_LOSS = 0.05  # 成本价-5%
+STOP_LOSS = 0.05
 
-# 通过环境变量或修改此行切换版本: "prev" | "same" | "next"
 MACD_TIMING = "next"
 VERSION_TAG = f"brick_macd_{MACD_TIMING}"
 PROGRESS_PATH = OUT / f"sim_replay_20230101_{VERSION_TAG}_progress.json"
@@ -104,45 +99,10 @@ def calc_brick_xg(df: pd.DataFrame, idx: int) -> bool:
     high = df["high"].values
     low = df["low"].values
     close = df["close"].values
-    
-    # VAR1A:=(HHV(HIGH,4)-CLOSE)/(HHV(HIGH,4)-LLV(LOW,4))*100-90;
-    # VAR2A:=SMA(VAR1A,4,1)+100;
-    # VAR3A:=(CLOSE-LLV(LOW,4))/(HHV(HIGH,4)-LLV(LOW,4))*100;
-    # VAR4A:=SMA(VAR3A,6,1);
-    # VAR5A:=SMA(VAR4A,6,1)+100;
-    # VAR6A:=VAR5A-VAR2A;
-    # 砖型图:IF(VAR6A>4,VAR6A-4,0)
-    # AA:=(REF(砖型图,1)<砖型图);
-    # CC:=REF(AA,1)=0 AND (AA=1);
-    # XG:CC>0
-    
-    # 预计算砖型图序列
     n = len(df)
-    brick_vals = []
-    for i in range(n):
-        if i < 3:
-            brick_vals.append(0)
-            continue
-        hhv4 = high[i-3:i+1].max()
-        llv4 = low[i-3:i+1].min()
-        if hhv4 == llv4:
-            brick_vals.append(0)
-            continue
-        var1a = (hhv4 - close[i]) / (hhv4 - llv4) * 100 - 90
-        brick_vals.append(max(0, var1a))
     
-    # SMA(VAR1A,4,1) 和 SMA(VAR3A,6,1) 需要完整序列
-    # 为了简化，我们直接用价格数据判断趋势转折
-    # XG的核心是：前一日砖型图下降，当日砖型图上升
-    
-    # 实际计算
     var1a_arr = np.zeros(n)
-    var2a_arr = np.zeros(n)
     var3a_arr = np.zeros(n)
-    var4a_arr = np.zeros(n)
-    var5a_arr = np.zeros(n)
-    var6a_arr = np.zeros(n)
-    brick_arr = np.zeros(n)
     
     for i in range(n):
         if i < 3:
@@ -157,6 +117,7 @@ def calc_brick_xg(df: pd.DataFrame, idx: int) -> bool:
         var3a_arr[i] = var3a
     
     # SMA_CN(var1a, 4, 1)
+    var2a_arr = np.zeros(n)
     prev = None
     for i in range(n):
         if prev is None:
@@ -166,6 +127,7 @@ def calc_brick_xg(df: pd.DataFrame, idx: int) -> bool:
         var2a_arr[i] = prev + 100
     
     # SMA_CN(var3a, 6, 1)
+    var4a_arr = np.zeros(n)
     prev = None
     for i in range(n):
         if prev is None:
@@ -175,6 +137,7 @@ def calc_brick_xg(df: pd.DataFrame, idx: int) -> bool:
         var4a_arr[i] = prev
     
     # SMA_CN(var4a, 6, 1)
+    var5a_arr = np.zeros(n)
     prev = None
     for i in range(n):
         if prev is None:
@@ -184,6 +147,7 @@ def calc_brick_xg(df: pd.DataFrame, idx: int) -> bool:
         var5a_arr[i] = prev + 100
     
     var6a_arr = var5a_arr - var2a_arr
+    brick_arr = np.zeros(n)
     for i in range(n):
         if var6a_arr[i] > 4:
             brick_arr[i] = var6a_arr[i] - 4
@@ -204,12 +168,9 @@ def calc_macd_red_bar(df: pd.DataFrame, idx: int) -> bool:
     
     close = df["close"].values
     
-    # EMA(CLOSE,12) 和 EMA(CLOSE,26)
     ema12 = pd.Series(close).ewm(span=12, adjust=False).mean().values
     ema26 = pd.Series(close).ewm(span=26, adjust=False).mean().values
     diff = ema12 - ema26
-    dea = pd.Series(diff).ewm(span=9, adjust=False).mean().values
-    macd = 2 * (diff - dea)
     
     # CROSS(DIFF,0): 前一日DIFF<0，当日DIFF>=0
     if idx >= 1:
@@ -219,23 +180,9 @@ def calc_macd_red_bar(df: pd.DataFrame, idx: int) -> bool:
 
 def main():
     save_progress("running", 0, 1, "preparing universe")
-    meta = load_universe()
-    meta = meta[meta["ts_code"].notna()].reset_index(drop=True)
-    print(f"[INFO] preparing universe: {len(meta)}")
     
-    meta = build_prepared_universe(meta, end_date=END_DATE)
-    meta = meta[meta["list_date"].notna()].reset_index(drop=True)
-    
-    code_data: Dict[str, pd.DataFrame] = {}
-    code_idx: Dict[str, Dict[str, int]] = {}
-    for _, r in meta.iterrows():
-        code = r["ts_code"]
-        df = prepare_code_df(code, DATA)
-        if df is None or len(df) < 50:
-            continue
-        code_data[code] = df
-        code_idx[code] = {str(d): i for i, d in enumerate(df["trade_date"])}
-    
+    # 使用新版API：build_prepared_universe返回 (meta, code_data, code_idx, rotation_map)
+    meta, code_data, code_idx, _ = build_prepared_universe(START_DATE, END_DATE, DATA)
     print(f"[INFO] usable codes: {len(code_data)}")
     
     cal = load_trade_calendar(START_DATE, END_DATE, DATA)
@@ -379,13 +326,12 @@ def main():
             if not brick_xg:
                 continue
             
-            # 检查MACD条件（根据版本不同）
+            # 检查MACD条件
             macd_ok = False
             buy_date = None
             buy_price = None
             
             if MACD_TIMING == "prev":
-                # 前一日有MACD红柱 → 当日收盘买入
                 if idx >= 1:
                     macd_ok = calc_macd_red_bar(df, idx - 1)
                 if macd_ok:
@@ -393,14 +339,12 @@ def main():
                     buy_price = float(row["close"])
             
             elif MACD_TIMING == "same":
-                # 当日有MACD红柱 → 当日收盘买入
                 macd_ok = calc_macd_red_bar(df, idx)
                 if macd_ok:
                     buy_date = str(row["trade_date"])
                     buy_price = float(row["close"])
             
             elif MACD_TIMING == "next":
-                # 后一日有MACD红柱 → 后一日收盘买入
                 if idx + 1 < len(df):
                     macd_ok = calc_macd_red_bar(df, idx + 1)
                 if macd_ok:
@@ -421,7 +365,6 @@ def main():
         # 3) 开仓（最多3只）
         can_open = max(0, 3 - len(positions))
         if can_open > 0 and sigs:
-            # 随机排序（因为没有J值等排序因子）
             import random
             random.seed(42)
             random.shuffle(sigs)
