@@ -78,9 +78,10 @@ def brick_v3_strict_hit(df: pd.DataFrame, idx: int, industry: str, project_root:
     if not bool(z.iloc[idx] >= z.iloc[idx - 1]):
         return False
 
-    warn, bear = load_omav_flags(project_root, trade_date)
-    if warn or bear:
-        return False
+    # OMAV限仓已关闭(回测验证:有OMAV限仓+172.93% vs 无限仓+219.99%)
+    # warn, bear = load_omav_flags(project_root, trade_date)
+    # if warn or bear:
+    #     return False
 
     top5 = build_rotation_top5_set(project_root, trade_date)
     if industry not in top5:

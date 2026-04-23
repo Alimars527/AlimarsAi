@@ -394,11 +394,12 @@ def main():
         bear = str(om.get("omav_bear_regime_flag", "False")).lower() == "true"
         warn = str(om.get("omav_rotation_warning_flag", "False")).lower() == "true"
 
-        max_new = 0 if bear else (1 if warn else 3)
-        max_total_pos = 1 if warn else 3
+        # OMAV限仓已关闭(回测验证:有OMAV限仓+172.93% vs 无限仓+219.99%)
+        max_new = 3
+        max_total_pos = 3
         free_slots = max(0, max_total_pos - len(positions))
         can_open = min(max_new, free_slots)
-        warn_overlap_only = bool(warn and not bear)
+        warn_overlap_only = False
 
         sigs = []
         if can_open > 0:
@@ -424,7 +425,7 @@ def main():
                 # BRICK_V3
                 brick_v1 = bool(row.get("brick_raw_turn_red", False)) and bool(row.get("brick_history_ok", False))
                 brick = False
-                if brick_v1 and (not bear) and (not warn) and idx >= 4:
+                if brick_v1 and idx >= 4:
                     z = safe_num(df["brick_formula_value"]).fillna(0)
                     g = df["brick_formula_green"].fillna(False).astype(bool)
                     white = safe_num(row.get("white_line"))
