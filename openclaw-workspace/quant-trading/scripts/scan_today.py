@@ -16,7 +16,7 @@ from quant.sim_replay_common import (
 from quant.b1_experimental_v1 import b1_experimental_v1_ok
 
 ROOT = Path(__file__).resolve().parents[1]
-TRADE_DATE = "20260422"
+TRADE_DATE = "20260423"
 START_DATE = "20250101"
 PRICE_MIN = 3.0
 PRICE_MAX = 300.0
@@ -27,7 +27,7 @@ T1 = {"光伏", "储能", "新能源", "电气仪表", "化工原料", "化肥�
 T2 = {"有色", "通信", "电力", "矿物制品", "新材料"}
 
 # 当前持仓 - 排除
-HELD_CODES = {"000600.SZ", "002380.SZ", "000973.SZ"}
+HELD_CODES = {"000600.SZ", "000973.SZ", "002911.SZ", "600583.SH"}
 
 V4A_PREV1_MAX = -1.0
 V4A_PREV2_MAX = -1.5
