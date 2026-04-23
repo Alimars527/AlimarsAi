@@ -5,7 +5,7 @@
 > 项目已迁移到 **AiLab 工作区**。
 > 当前真实位置：`/Volumes/Alimars扩容空间/AiLab/openclaw-workspace/quant-trading`
 > 兼容访问路径：`/Users/alimars/.openclaw/workspace/quant-trading`（软链接）
-> 最后更新：2026-04-18
+> 最后更新：2026-04-23
 
 ## BaseLine策略：组合版（砖型图+B1+止盈止损+回撤止损v5）
 
