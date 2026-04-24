@@ -260,9 +260,31 @@ def scan():
                 continue
 
             candle_pattern = identify_candle(df)
-            stop_profit = round(close * 1.08, 2)
-            stop_loss = round(close * 0.96, 2)
-            yellow_stop = round(yellow, 2)
+
+            # 预估买入价（BaseLine v6规则）
+            # 砖型图: min(收盘*0.995, 次日开盘*0.99) — 扫描时次日开盘未知，用收盘折扣预估
+            # B1/共振: min(收盘*0.993, 次日开盘*0.988)
+            if is_resonance:
+                est_buy = round(close * 0.993, 3)
+            elif "砖型图V3" in tags:
+                est_buy = round(close * 0.995, 3)
+            else:
+                est_buy = round(close * 0.993, 3)
+
+            # 砖型图止损: -0.3%日内止损线 = 买入价*0.997
+            brick_sl = round(est_buy * 0.997, 2)
+            # B1止盈止损
+            b1_tp1 = round(est_buy * 1.10, 2)
+            b1_tp2 = round(est_buy * 1.20, 2)
+            yellow_sl = round(yellow, 2)
+
+            # 退出方式描述
+            if is_resonance:
+                exit_desc = "砖型图:持1天, -0.3%止损; B1:TP1+10%/TP2+20%/黄线/10天"
+            elif "砖型图V3" in tags:
+                exit_desc = "持1天收盘卖, -0.3%止损线"
+            else:
+                exit_desc = "TP1+10%卖半仓/TP2+20%全卖/黄线止损/10天到期"
 
             # J值（KDJ）
             j_val = float(latest.get("kdj_j", 0))
@@ -283,11 +305,14 @@ def scan():
                 "white": round(white, 2),
                 "yellow": round(yellow, 2),
                 "j_val": round(j_val, 1),
-                "stop_profit": stop_profit,
-                "stop_loss": stop_loss,
-                "yellow_stop": yellow_stop,
+                "est_buy": est_buy,
+                "brick_sl": brick_sl,
+                "b1_tp1": b1_tp1,
+                "b1_tp2": b1_tp2,
+                "yellow_sl": yellow_sl,
+                "exit_desc": exit_desc,
                 "is_resonance": is_resonance,
-                "rotation_top5": in_rotation_top5,
+                "rotation_top5": True,
             })
         except Exception as e:
             errors += 1
