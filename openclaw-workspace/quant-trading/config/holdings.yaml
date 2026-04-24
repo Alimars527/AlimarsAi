@@ -1,21 +1,21 @@
-updated_at: '2026-04-23T15:30:00+08:00'
+updated_at: '2026-04-24T15:30:00+08:00'
 holdings:
-- code: 000600.SZ
-  name: 建投能源
-  cost: 9.444
-  quantity: 1100
-- code: 000973.SZ
-  name: 佛塑科技
-  cost: 18.255
-  quantity: 800
-- code: 002911.SZ
-  name: 美能能源
-  cost: 15.149
-  quantity: 600
-- code: 600583.SH
-  name: 海油工程
-  cost: 7.113
-  quantity: 1500
+- code: 601222.SH
+  name: 林洋能源
+  cost: 6.290
+  quantity: 100
+- code: 603803.SH
+  name: 瑞斯康达
+  cost: 15.172
+  quantity: 700
+- code: 002821.SZ
+  name: 凯莱英
+  cost: 116.896
+  quantity: 200
+- code: 002805.SZ
+  name: 丰元股份
+  cost: 18.320
+  quantity: 500
 - code: ETF_HKLOWVOL
   name: 港股低波红利ETF摩根
   cost: 1.681
