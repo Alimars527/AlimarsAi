@@ -109,14 +109,14 @@ def plan_a(pro):
     # 3. 获取净利润 (取最近一期)
     fina_all = []
     for ts_code in ts_codes:
-        df = pro.income(ts_code=ts_code, start_date='20250101', end_date='20260424',
-                        fields='ts_code,end_date,n_income_attr_p')
+        df = pro.fina_indicator(ts_code=ts_code, start_date='20250101', end_date='20260424',
+                                fields='ts_code,end_date,profit_dedt')
         fina_all.append(df)
     fina_df = pd.concat(fina_all, ignore_index=True)
     latest_profit = {}
     for code, g in fina_df.groupby('ts_code'):
         g = g.sort_values('end_date', ascending=False)
-        latest_profit[code] = g.iloc[0]['n_income_attr_p']
+        latest_profit[code] = g.iloc[0]['profit_dedt']
 
     results = []
 
@@ -308,7 +308,8 @@ def plan_b(pro):
     daily_sorted = daily_all.sort_values(['ts_code', 'trade_date'])
     daily_sorted['ma5'] = daily_sorted.groupby('ts_code')['close'].transform(lambda x: x.shift(1).rolling(5).mean())
 
-    # 4. 合并 daily + basic
+    # 4. 合并 daily + basic (basic里删除close避免重复)
+    basic_all = basic_all.drop(columns=['close'], errors='ignore')
     merged = daily_sorted.merge(basic_all, on=['ts_code', 'trade_date'], how='left')
 
     # 5. 计算量比 (如果 volume_ratio 缺失)
@@ -353,7 +354,7 @@ def plan_b(pro):
         signal = day[cond_pct & cond_qrr & cond_turnover & cond_mv & cond_ma].copy()
         if not signal.empty:
             signal['trade_date'] = td
-            pre_signals.append(signal[['ts_code', 'trade_date', 'name', 'pct_chg', 'volume_ratio',
+            pre_signals.append(signal[['ts_code', 'trade_date', 'pct_chg', 'volume_ratio',
                                        'turnover_rate_f', 'circ_mv', 'close', 'pre_close', 'ma5', 'vol']])
 
     if not pre_signals:
@@ -371,12 +372,12 @@ def plan_b(pro):
     for i in range(0, len(unique_candidates), batch_size):
         batch = unique_candidates[i:i+batch_size]
         try:
-            fina = pro.income(ts_code=','.join(batch),
-                              start_date='20250101', end_date='20260424',
-                              fields='ts_code,end_date,n_income_attr_p')
+            fina = pro.fina_indicator(ts_code=','.join(batch),
+                                      start_date='20250101', end_date='20260424',
+                                      fields='ts_code,end_date,profit_dedt')
             for code, g in fina.groupby('ts_code'):
                 latest = g.sort_values('end_date', ascending=False).iloc[0]
-                profit_map[code] = latest['n_income_attr_p']
+                profit_map[code] = latest['profit_dedt']
         except Exception as e:
             print(f"  批次 {i//batch_size+1} 出错: {e}")
 
