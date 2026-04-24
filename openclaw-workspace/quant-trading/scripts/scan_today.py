@@ -366,7 +366,7 @@ def scan():
                 print(f"  ★ {r['ts_code']} {r['name']} | {r['industry']} | {r['tier_label']}")
                 print(f"    收盘{r['close']} 涨跌{r['pct_chg']:+.2f}% J={r['j_val']} 评分{r['score']}")
                 print(f"    蜡烛图:{r['candle']} 白线{r['white']} 黄线{r['yellow']}")
-                print(f"    止盈{r['stop_profit']} 止损{r['stop_loss']} 黄线止损{r['yellow_stop']}")
+                print(f"    预估买入价{r['est_buy']} | 砖型图-0.3%止损{r['brick_sl']} | B1 TP1={r['b1_tp1']} TP2={r['b1_tp2']} | 黄线止损{r['yellow_sl']}")
                 print(f"    标签: {', '.join(r['tags'])}")
                 print()
 
@@ -376,7 +376,7 @@ def scan():
                 print(f"  ■ {r['ts_code']} {r['name']} | {r['industry']} | {r['tier_label']}")
                 print(f"    收盘{r['close']} 涨跌{r['pct_chg']:+.2f}% J={r['j_val']} 评分{r['score']}")
                 print(f"    蜡烛图:{r['candle']} 白线{r['white']} 黄线{r['yellow']}")
-                print(f"    止盈{r['stop_profit']} 止损{r['stop_loss']} 黄线止损{r['yellow_stop']}")
+                print(f"    预估买入价{r['est_buy']} | -0.3%止损线{r['brick_sl']} | 持1天收盘卖")
                 print(f"    标签: {', '.join(r['tags'])}")
                 print()
 
@@ -386,7 +386,7 @@ def scan():
                 print(f"  ● {r['ts_code']} {r['name']} | {r['industry']} | {r['tier_label']}")
                 print(f"    收盘{r['close']} 涨跌{r['pct_chg']:+.2f}% J={r['j_val']} 评分{r['score']}")
                 print(f"    蜡烛图:{r['candle']} 白线{r['white']} 黄线{r['yellow']}")
-                print(f"    止盈TP1={round(r['close']*1.1,2)} TP2={round(r['close']*1.2,2)} 黄线止损{r['yellow_stop']}")
+                print(f"    预估买入价{r['est_buy']} | TP1={r['b1_tp1']}(+10%) TP2={r['b1_tp2']}(+20%) | 黄线止损{r['yellow_sl']} | 10天到期")
                 print(f"    标签: {', '.join(r['tags'])}")
                 print()
 
