@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Callable
 
+import fcntl
 import numpy as np
 import pandas as pd
 
@@ -27,6 +28,8 @@ from quant.sim_replay_common import (
 
 DATA = ROOT / "data"
 OUT = ROOT / "outputs"
+SHARED_DATA_CACHE = OUT / "shared_backtest_data.pkl"
+SHARED_DATA_META = OUT / "shared_backtest_meta.json"
 
 # ── 回测参数 ──────────────────────────────────────
 START_DATE = "20230101"
@@ -180,6 +183,73 @@ def has_b1_or_brick(df: pd.DataFrame, idx: int, industry: str, rotation_map: dic
     return today_b1, today_brick, prev_b1, prev_brick
 
 
+def _cache_fresh(cache_meta_path: Path) -> bool:
+    """检查共享缓存是否比所有原始日线数据文件都新"""
+    if not cache_meta_path.exists():
+        return False
+    try:
+        meta = json.loads(cache_meta_path.read_text(encoding="utf-8"))
+        cache_mtime = meta.get("mtime", 0)
+        # 检查 data/daily 目录下是否有比缓存更新的文件
+        daily_dir = DATA / "daily"
+        for f in daily_dir.glob("*.csv"):
+            try:
+                if f.stat().st_mtime > cache_mtime:
+                    return False
+            except OSError:
+                return False
+        return True
+    except Exception:
+        return False
+
+
+def _load_or_build_shared_data(version_tag: str):
+    """加载共享缓存；如果不存在或过期，则构建并保存"""
+    if _cache_fresh(SHARED_DATA_META) and SHARED_DATA_CACHE.exists():
+        print(f"[{version_tag}] loading shared cache ...")
+        try:
+            cached = pd.read_pickle(SHARED_DATA_CACHE)
+            meta = cached["meta"]
+            code_data = cached["code_data"]
+            code_idx = cached["code_idx"]
+            rotation_map = {
+                (tuple(k) if isinstance(k, list) else k): v
+                for k, v in cached["rotation_map"].items()
+            }
+            print(f"[{version_tag}] shared cache loaded: {len(code_data)} codes")
+            return meta, code_data, code_idx, rotation_map
+        except Exception as e:
+            print(f"[{version_tag}] cache load failed: {e}, rebuilding ...")
+
+    print(f"[{version_tag}] building prepared universe ...")
+    meta, code_data, code_idx, rotation_map = build_prepared_universe(
+        START_DATE, END_DATE, DATA, min_rows=40,
+    )
+    print(f"[{version_tag}] usable codes: {len(code_data)}")
+
+    # 保存共享缓存
+    try:
+        OUT.mkdir(parents=True, exist_ok=True)
+        # rotation_map 的 key 是 tuple，pickle 可以处理
+        pd.to_pickle({
+            "meta": meta,
+            "code_data": code_data,
+            "code_idx": code_idx,
+            "rotation_map": rotation_map,
+        }, SHARED_DATA_CACHE)
+        SHARED_DATA_META.write_text(json.dumps({
+            "mtime": pd.Timestamp.now().timestamp(),
+            "codes": len(code_data),
+            "start_date": START_DATE,
+            "end_date": END_DATE,
+        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"[{version_tag}] shared cache saved")
+    except Exception as e:
+        print(f"[{version_tag}] cache save warning: {e}")
+
+    return meta, code_data, code_idx, rotation_map
+
+
 def run_backtest(
     version_tag: str,
     buy_signal_fn: Callable[[pd.DataFrame, int], bool],
@@ -194,12 +264,7 @@ def run_backtest(
     cal = load_trade_calendar(START_DATE, END_DATE, DATA)
     cal_set = set(cal)
 
-    meta = load_universe(DATA)
-    print(f"[{version_tag}] preparing universe: {len(meta)}")
-    meta, code_data, code_idx, rotation_map = build_prepared_universe(
-        START_DATE, END_DATE, DATA, min_rows=40,
-    )
-    print(f"[{version_tag}] usable codes: {len(code_data)}")
+    meta, code_data, code_idx, rotation_map = _load_or_build_shared_data(version_tag)
 
     cash = INITIAL_CAPITAL
     positions: List[Position] = []
